@@ -1,0 +1,18 @@
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Calculating upgrade... Done
+The following packages were automatically installed and are no longer required:
+  irqbalance libboost-iostreams1.74.0 libgfapi0 libgfrpc0 libgfxdr0 libglusterfs0 libpython3.11 libpython3.11-dev python3.11-dev
+Use 'sudo apt autoremove' to remove them.
+The following packages will be upgraded:
+  docker-compose-plugin netbird netbird-ui teamviewer
+4 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Inst docker-compose-plugin [2.24.5-1~ubuntu.22.04~jammy] (2.24.6-1~ubuntu.22.04~jammy Docker CE:jammy [amd64])
+Inst netbird [0.26.0] (0.26.2 Artifactory:stable [amd64])
+Inst netbird-ui [0.26.0] (0.26.2 Artifactory:stable [amd64])
+Inst teamviewer [15.50.5] (15.51.5 TeamViewer:stable [amd64])
+Conf docker-compose-plugin (2.24.6-1~ubuntu.22.04~jammy Docker CE:jammy [amd64])
+Conf netbird (0.26.2 Artifactory:stable [amd64])
+Conf netbird-ui (0.26.2 Artifactory:stable [amd64])
+Conf teamviewer (15.51.5 TeamViewer:stable [amd64])

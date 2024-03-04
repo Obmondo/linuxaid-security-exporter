@@ -1,0 +1,7 @@
+cve_api: 
+  url: https://services.nvd.nist.gov
+  endpoint: /rest/json/cves/2.0
+  timeout: 20
+  request_interval: 6
+
+cron_expression: "00 23 * * *"
