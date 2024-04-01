@@ -15,3 +15,8 @@ CRON_EXPRESSION - this will basically set how many times this program will check
 ```
 
 - if you don't like using Enviroment variables you can use YAML config, please check [this link](./config/config.test.yaml)
+
+### Metrices output sample
+
+![metrices](./assests/metrices.png)
+
