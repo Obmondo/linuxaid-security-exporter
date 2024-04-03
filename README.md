@@ -17,6 +17,12 @@ CRON_EXPRESSION - this will basically set how many times this program will check
 - if you don't like using Enviroment variables you can use YAML config, please check [this link](./config/config.test.yaml)
 
 ### Metrices output sample
-
+```
+# HELP cve_details shows cve score found in availabe security update of linux node
+# TYPE cve_details gauge
+cve_details{application="bar",cve_id="CVE-2024-0855",score="LOW",severity="1.5"} 0
+cve_details{application="curl",cve_id="CVE-2024-0853",score="LOW",severity="1.4"} 0
+cve_details{application="foo",cve_id="CVE-2024-0855",score="LOW",severity="1.6"} 0
+```
 ![metrices](./assests/metrices.png)
 
