@@ -1,11 +1,9 @@
 package model
 
 type AppCVE struct {
-	Name           string
-	CurrentVersion string
-	CVEID          []string
-	CVEScore       []string
-	CVESeverity    []string
+	Name     string
+	CVEID    []string
+	CVEScore []string
 }
 
 type NVDJsonRespone struct {

@@ -33,30 +33,24 @@ func checkExpectedOutput(assert *require.Assertions, output []model.AppCVE, expe
 	for i := range expectedOutput {
 		fmt.Printf("test case #%d \n", i)
 		assert.Equal(expectedOutput[i].CVEScore, output[i].CVEScore)
-		assert.Equal(expectedOutput[i].CVESeverity, output[i].CVESeverity)
 	}
 }
 
 func prepareExpectedOutput() []model.AppCVE {
 	return []model.AppCVE{
 		{
-			Name:           "curl",
-			CurrentVersion: "7.3",
-			CVEID:          []string{"CVE-2024-0853"},
-			CVEScore:       []string{"1.4"},
-			CVESeverity:    []string{"LOW"},
+			Name:     "curl",
+			CVEID:    []string{"CVE-2024-0853"},
+			CVEScore: []string{"5.3"},
 		},
 		{
-			Name:           "foo",
-			CurrentVersion: "10.1",
-			CVEID:          []string{"CVE-2024-0854"},
-			CVEScore:       []string{"7.9"},
-			CVESeverity:    []string{"HIGH"},
+			Name:     "foo",
+			CVEID:    []string{"CVE-2024-0854"},
+			CVEScore: []string{"7.3"},
 		},
 		{
-			Name:           "foo",
-			CurrentVersion: "10.1",
-			CVEID:          []string{"CVE-2024-0855"},
+			Name:  "foo",
+			CVEID: []string{"CVE-2024-0855"},
 		},
 	}
 }
@@ -64,19 +58,16 @@ func prepareExpectedOutput() []model.AppCVE {
 func prepareMockDataForTestCVE() []model.AppCVE {
 	apps := []model.AppCVE{
 		{
-			Name:           "curl",
-			CurrentVersion: "7.3",
-			CVEID:          []string{"CVE-2024-0853"},
+			Name:  "curl",
+			CVEID: []string{"CVE-2024-0853"},
 		},
 		{
-			Name:           "foo",
-			CurrentVersion: "10.1",
-			CVEID:          []string{"CVE-2024-0854"},
+			Name:  "foo",
+			CVEID: []string{"CVE-2024-0854"},
 		},
 		{
-			Name:           "foo",
-			CurrentVersion: "10.1",
-			CVEID:          []string{"CVE-2024-0855"},
+			Name:  "foo",
+			CVEID: []string{"CVE-2024-0855"},
 		},
 	}
 

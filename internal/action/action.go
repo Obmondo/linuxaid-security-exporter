@@ -2,6 +2,12 @@ package action
 
 import "gitea.obmondo.com/EnableIT/security-exporter/internal/constants"
 
+var (
+	logMsgCheckForSecurityUpdate = "checking for security updated"
+	logMsgGetChangeLogForPackage = "getting change log for package"
+	logMsgGetPackageVersion      = "Getting Version for package"
+)
+
 type Action interface {
 	CheckSecurityForSecurityUpdate() (string, error)
 	GetChangelogs(packageName string) (string, error)

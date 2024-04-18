@@ -21,6 +21,7 @@ type debianExtractor struct {
 
 // ExtractCVENumberForGivenChangelog implements Extracter.
 func (d *debianExtractor) ExtractCVENumberForGivenChangelog(changelog string, currentInstalledVersion string) []string {
+	logger.GetLogger().Info(context.Background(), logMsgExtractCVENumber, nil)
 	scopedChangeLog := d.limitSearchSpace(changelog, currentInstalledVersion)
 	cveIDs := constants.CveRegex.FindAllString(scopedChangeLog, -1)
 	filterMap := make(map[string]struct{})
@@ -77,6 +78,7 @@ func (d *debianExtractor) limitSearchSpace(changelog string, currentInstalledVer
 
 // ExtractAppWithSecurityUpdate implements Extracter.
 func (d *debianExtractor) ExtractAppWithSecurityUpdate(text string) []model.AppCVE {
+	logger.GetLogger().Info(context.Background(), logMsgExtractAppsWithSecurityUpdate, nil)
 	pkgs := d.instRegex.FindAllStringSubmatch(text, -1)
 	if len(pkgs) == 0 {
 		return nil

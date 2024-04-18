@@ -19,6 +19,7 @@ func main() {
 	done := make(chan os.Signal)
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
 
+	metrics.InitCertname()
 	metrics.RegisterMetrics()
 	cfg := config.NewConfig(*configPath())
 	distro := distro.GetCurrentOS()

@@ -2,6 +2,7 @@ package cron
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"gitea.obmondo.com/EnableIT/security-exporter/config"
@@ -10,9 +11,12 @@ import (
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/cve"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/extracter"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/metrics"
+	"gitea.obmondo.com/EnableIT/security-exporter/internal/model"
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 	"github.com/go-co-op/gocron"
 )
+
+var errFailedToGetCVEScores = errors.New("unable to fetch cve scores of apps")
 
 type service struct {
 	actionService    action.Action
@@ -24,10 +28,12 @@ type service struct {
 func Start(cfg config.Config, distro constants.Distro) (*service, error) {
 	service := newService(cfg, distro)
 
-	if _, err := service.scheduler.Cron(cfg.GetCVECronExpression()).Do(service.collectCVEMetrics); err != nil {
+	ctx := context.Background()
+	if _, err := service.scheduler.Cron(cfg.GetCVECronExpression()).Do(service.collectCVEMetrics, ctx); err != nil {
 		return nil, err
 	}
 
+	service.scheduler.StartAsync()
 	return service, nil
 }
 
@@ -40,27 +46,50 @@ func (s *service) Stop() {
 	logger.GetLogger().Info(context.Background(), "cron stopped successfully", nil)
 }
 
-func (s *service) collectCVEMetrics() {
+func (s *service) collectCVEMetrics(ctx context.Context) {
+
 	output, err := s.actionService.CheckSecurityForSecurityUpdate()
 	if err != nil {
-		logger.GetLogger().Fatal(context.Background(), "failed to to get action", err, nil)
+		logger.GetLogger().Error(ctx, "failed to find security update", err, nil)
+		return
 	}
+
+	// fills  appCVE slice with current versison and CVEIds
+	apps := s.getAllParamsRelatedToAppWithSecurityUpdate(ctx, output)
+	if len(apps) == 0 {
+		logger.GetLogger().Info(ctx, "no apps with security update found", nil)
+		return
+	}
+
+	apps, errs := s.cveService.FillAppsDataWithCVEScore(apps...)
+	if len(errs) == len(apps) {
+		logger.GetLogger().Error(ctx, "errors occured while fetching cve score of all apps", errFailedToGetCVEScores, map[string]any{"errors": errs})
+		return
+	}
+	if len(errs) != 0 {
+		logger.GetLogger().Info(ctx, "errors occured while fetching cve scores of apps, not all apps maybe present in metrics", map[string]any{"errors": errs})
+	}
+
+	metrics.SetCVELabelsValue(metrics.FilterAppsWithNoCVEScore(apps))
+}
+
+func (s *service) getAllParamsRelatedToAppWithSecurityUpdate(ctx context.Context, output string) []model.AppCVE {
 	apps := s.extractorService.ExtractAppWithSecurityUpdate(output)
 	for i, app := range apps {
 		version, err := s.actionService.GetCurrentPackageVersion(app.Name)
 		if err != nil {
-			logger.GetLogger().Fatal(context.Background(), "failed to get pkg version", err, nil)
+			logger.GetLogger().Error(ctx, "failed to to get current pkg version", err, nil)
+			continue
 		}
 		changelog, err := s.actionService.GetChangelogs(app.Name)
 		if err != nil {
-			logger.GetLogger().Error(context.Background(), "failed to get change log", err, nil)
+			logger.GetLogger().Error(ctx, "failed to get change log", err, nil)
+			continue
 		}
-		apps[i].CurrentVersion = version
 		apps[i].CVEID = s.extractorService.ExtractCVENumberForGivenChangelog(changelog, version)
 	}
 
-	s.cveService.FillAppsDataWithCVEScore(apps...)
-	metrics.SetCVELabelsValue(apps)
+	return apps
 }
 
 func newService(cfg config.Config, distro constants.Distro) *service {

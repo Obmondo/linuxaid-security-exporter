@@ -1,6 +1,12 @@
 # Repo Info
 
-- repo for exporter that exposes security information about installed packages and CVE relevant info
+- repo for exporter that exposes security information about installed packages and CVE relevant infoa
+
+
+## Requriements before running the application 
+
+- puppet must be installed 
+- For distro's which use YUM, the application expects `yum security plugin` to be installed
 
 
 ### Enviroment variables list 
@@ -20,9 +26,9 @@ CRON_EXPRESSION - this will basically set how many times this program will check
 ```
 # HELP cve_details shows cve score found in availabe security update of linux node
 # TYPE cve_details gauge
-cve_details{application="bar",cve_id="CVE-2024-0855",score="LOW",severity="1.5"} 0
-cve_details{application="curl",cve_id="CVE-2024-0853",score="LOW",severity="1.4"} 0
-cve_details{application="foo",cve_id="CVE-2024-0855",score="LOW",severity="1.6"} 0
+cve_details{application="bar",cve_id="CVE-2024-0855",severity="1.5"} 0
+cve_details{application="curl",cve_id="CVE-2024-0853",severity="1.4"} 0
+cve_details{application="foo",cve_id="CVE-2024-0855",,severity="1.6"} 0
 ```
 ![metrices](./assests/metrices.png)
 

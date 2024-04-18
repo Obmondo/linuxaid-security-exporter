@@ -53,7 +53,7 @@ func (c *config) sanityCheck() {
 }
 
 func (c *config) GetCVEAPITimeout() time.Duration {
-	if c.viper.GetInt("CVE_API_TIMEOUT") == 0 || c.viper.GetInt("cve_api.timeout") == 0 {
+	if c.viper.GetInt("CVE_API_TIMEOUT") == 0 && c.viper.GetInt("cve_api.timeout") == 0 {
 		logger.GetLogger().Fatal(context.Background(), "failed to find timeout parameter for CVE API in config and in environment", nil, nil)
 	}
 
@@ -66,7 +66,7 @@ func (c *config) GetCVEAPITimeout() time.Duration {
 }
 
 func (c *config) GetCVERequestInterval() time.Duration {
-	if c.viper.GetInt("CVE_API_REQUEST_INTERVAL") == 0 || c.viper.GetInt("cve_api.request_interval") == 0 {
+	if c.viper.GetInt("CVE_API_REQUEST_INTERVAL") == 0 && c.viper.GetInt("cve_api.request_interval") == 0 {
 		logger.GetLogger().Fatal(context.Background(), "failed to find timeout paramter for cve api in config and in environment", nil, nil)
 	}
 
@@ -79,7 +79,7 @@ func (c *config) GetCVERequestInterval() time.Duration {
 }
 
 func (c *config) GetCVEAPI() string {
-	if len(c.viper.GetString("CVE_API_URL")) == 0 || len(c.viper.GetString("cve_api.url")) == 0 {
+	if len(c.viper.GetString("CVE_API_URL")) == 0 && len(c.viper.GetString("cve_api.url")) == 0 {
 		logger.GetLogger().Fatal(context.Background(), "failed to find cve_api value in env and in config file", nil, nil)
 	}
 
@@ -93,7 +93,7 @@ func (c *config) GetCVEAPI() string {
 
 // GetCVEAPIEndpoint implements Config.
 func (c *config) GetCVEAPIEndpoint() string {
-	if len(c.viper.GetString("CVE_API_ENDPOINT")) == 0 || len(c.viper.GetString("cve_api.endpoint")) == 0 {
+	if len(c.viper.GetString("CVE_API_ENDPOINT")) == 0 && len(c.viper.GetString("cve_api.endpoint")) == 0 {
 		logger.GetLogger().Fatal(context.Background(), "failed to find cve api endpoint in config and in environment", nil, nil)
 	}
 
@@ -106,7 +106,7 @@ func (c *config) GetCVEAPIEndpoint() string {
 }
 
 func (c *config) GetCVECronExpression() string {
-	if len(c.viper.GetString("CRON_EXPRESSION")) == 0 || len(c.viper.GetString("cron_expression")) == 0 {
+	if len(c.viper.GetString("CRON_EXPRESSION")) == 0 && len(c.viper.GetString("cron_expression")) == 0 {
 		logger.GetLogger().Fatal(context.Background(), "failed to find cron expression in config and in environment", nil, nil)
 	}
 

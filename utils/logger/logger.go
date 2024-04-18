@@ -40,7 +40,7 @@ func (l *logger) Info(ctx context.Context, msg string, params map[string]any) {
 }
 
 func (l *logger) Debug(ctx context.Context, msg string, params map[string]any) {
-	l.log.DebugContext(ctx, msg, slog.Any("params", params))
+	l.log.DebugContext(ctx, msg, slog.Any("params", params), l.runTimeCaller())
 }
 
 func (l *logger) runTimeCaller() slog.Attr {
