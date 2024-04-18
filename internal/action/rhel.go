@@ -11,10 +11,13 @@ type rhel struct{}
 
 // CheckSecurityForSecurityUpdate implements Action.
 func (*rhel) CheckSecurityForSecurityUpdate() (string, error) {
+	logger.GetLogger().Info(context.Background(), logMsgCheckForSecurityUpdate, nil)
 	cmd := exec.Command("yum", "--security", "check-update")
 	output, err := cmd.Output()
 	if err != nil {
-		logger.GetLogger().Error(context.Background(), "failed to get security update via YUM", err, map[string]any{"output": string(output)})
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			logger.GetLogger().Error(context.Background(), "failed to get security update via YUM", err, map[string]any{"output": string(output), "stderr": exitErr.Stderr})
+		}
 		return "", err
 	}
 
@@ -23,10 +26,13 @@ func (*rhel) CheckSecurityForSecurityUpdate() (string, error) {
 
 // GetChangelogs implements Action.
 func (*rhel) GetChangelogs(packageName string) (string, error) {
+	logger.GetLogger().Info(context.Background(), logMsgGetChangeLogForPackage, map[string]any{"pkg-name": packageName})
 	cmd := exec.Command("yum", "changelog", packageName)
 	output, err := cmd.Output()
 	if err != nil {
-		logger.GetLogger().Error(context.Background(), "faield to get changelog", err, map[string]any{"output": string(output)})
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			logger.GetLogger().Error(context.Background(), "faield to get changelog", err, map[string]any{"output": string(output), "stderr": exitErr.Stderr})
+		}
 		return "", err
 	}
 	return string(output), nil
@@ -34,10 +40,13 @@ func (*rhel) GetChangelogs(packageName string) (string, error) {
 
 // GetCurrentPackageVersion implements Action.
 func (*rhel) GetCurrentPackageVersion(packageName string) (string, error) {
+	logger.GetLogger().Info(context.Background(), logMsgGetPackageVersion, map[string]any{"pkg-name": packageName})
 	cmd := exec.Command("yum", "info", packageName)
 	output, err := cmd.Output()
 	if err != nil {
-		logger.GetLogger().Error(context.Background(), "failed to get package version", err, map[string]any{"output": string(output)})
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			logger.GetLogger().Error(context.Background(), "failed to get package version", err, map[string]any{"output": string(output), "stderr": exitErr.Stderr})
+		}
 		return "", err
 	}
 	return string(output), nil

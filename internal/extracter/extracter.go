@@ -5,6 +5,9 @@ import (
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/model"
 )
 
+var logMsgExtractCVENumber = "extracting cve numbers from changelog"
+var logMsgExtractAppsWithSecurityUpdate = "finding apps in list"
+
 type Extracter interface {
 	ExtractAppWithSecurityUpdate(string) []model.AppCVE
 	ExtractCVENumberForGivenChangelog(string, string) []string

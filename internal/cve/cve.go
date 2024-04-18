@@ -26,6 +26,7 @@ type service struct {
 
 // FillAppsDataWithCVEScore implements CVEService.
 func (s *service) FillAppsDataWithCVEScore(appCVEs ...model.AppCVE) ([]model.AppCVE, []error) {
+	logger.GetLogger().Info(context.Background(), "fetching cve scores for packages", nil)
 	errs := []error{}
 	for i, appCVE := range appCVEs {
 		cves, err := s.processAppCVE(appCVE)
@@ -39,29 +40,20 @@ func (s *service) FillAppsDataWithCVEScore(appCVEs ...model.AppCVE) ([]model.App
 
 func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, error) {
 	for _, cveID := range appCVE.CVEID {
-		nvdApiResponse, err := s.getCVEFromAPI(cveID, appCVE.Name)
+		nvdAPIResponse, err := s.getCVEFromAPI(cveID, appCVE.Name)
 		if err != nil {
 			return appCVE, err
 		}
 
 		appCVE.CVEScore = append(appCVE.CVEScore,
 			fmt.Sprintf("%.1f",
-				nvdApiResponse.
+				nvdAPIResponse.
 					Vulnerabilities[0].
 					Cve.
 					Metrics.
-					CvssMetricV31[0].
-					ImpactScore))
+					CvssMetricV31[0].CvssData.BaseScore))
 
-		appCVE.CVESeverity = append(appCVE.CVESeverity,
-			nvdApiResponse.
-				Vulnerabilities[0].
-				Cve.
-				Metrics.
-				CvssMetricV31[0].
-				CvssData.
-				IntegrityImpact)
-
+		// this timer throttle request flow to 3party api
 		<-s.sustainableRate.C
 	}
 
@@ -72,25 +64,25 @@ func (s *service) getCVEFromAPI(cveID string, appName string) (*model.NVDJsonRes
 	url := fmt.Sprintf("%s%s?%s=%s", s.cfg.GetCVEAPI(), s.cfg.GetCVEAPIEndpoint(), constants.ParamCVEID, cveID)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		logger.GetLogger().Error(req.Context(), "failed to create request", err, nil)
+		logger.GetLogger().Error(req.Context(), "failed to create request", err, map[string]any{"app-name": appName})
 		return nil, err
 	}
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		logger.GetLogger().Error(resp.Request.Context(), "failed to get cve data from 3rd party api", err, nil)
+		logger.GetLogger().Error(resp.Request.Context(), "failed to get cve data from 3rd party api", err, map[string]any{"app-name": appName})
 		return nil, err
 	}
 
 	if resp.StatusCode == http.StatusForbidden {
-		logger.GetLogger().Error(resp.Request.Context(), "failed to get cve data due to ratelimit", err, map[string]any{"status code": resp.StatusCode})
+		logger.GetLogger().Error(resp.Request.Context(), "failed to get cve data due to ratelimit", err, map[string]any{"status code": resp.StatusCode, "app-name": appName})
 		return nil, errors.New("rate limit reached")
 	}
 
 	defer func() {
 		if resp.Body != nil {
 			if err := resp.Body.Close(); err != nil {
-				logger.GetLogger().Error(resp.Request.Context(), "failed to close response body", err, nil)
+				logger.GetLogger().Error(resp.Request.Context(), "failed to close response body", err, map[string]any{"app-name": appName})
 			}
 		}
 	}()

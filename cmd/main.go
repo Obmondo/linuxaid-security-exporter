@@ -19,6 +19,7 @@ func main() {
 	done := make(chan os.Signal)
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
 
+	metrics.InitCertname()
 	metrics.RegisterMetrics()
 	cfg := config.NewConfig(*configPath())
 	distro := distro.GetCurrentOS()
@@ -27,7 +28,7 @@ func main() {
 		logger.GetLogger().Fatal(context.Background(), "fatal failed to start cron service", err, nil)
 	}
 
-	server.Start(done)
+	server.Start(done, cfg.GetServerPort())
 
 	crongService.Stop()
 }

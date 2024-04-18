@@ -34,6 +34,9 @@ func (c *mockConfig) GetCVERequestInterval() time.Duration {
 	cveRequestInterval := c.viper.GetInt("cve_api.request_interval")
 	return time.Duration(cveRequestInterval) * time.Second
 }
+func (c *mockConfig) GetServerPort() int {
+	return c.viper.GetInt("server.port")
+}
 
 func MockConfig(path string) config.Config {
 	viperConfig := viper.New()

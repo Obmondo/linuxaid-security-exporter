@@ -1,11 +1,18 @@
 # Repo Info
 
-- repo for exporter that exposes security information about installed packages and CVE relevant info
+- repo for exporter that exposes security information about installed packages and CVE relevant infoa
+
+
+## Requriements before running the application 
+
+- puppet must be installed 
+- For distro's which use YUM, the application expects `yum security plugin` to be installed
 
 
 ### Enviroment variables list 
 
 ```
+SERVER_PORT - this will run server on specified port
 LOGGING_LEVEL - supports debug, info, warn, error ENUMS for logging level(Note this cannot be configuared via YAML file)
 CVE_API_TIMEOUT - sets timeout for request to 3rd party api 
 CVE_API_REQUEST_INTERVAL - sets time interval between each request  to avoid getting rate limited
@@ -20,9 +27,9 @@ CRON_EXPRESSION - this will basically set how many times this program will check
 ```
 # HELP cve_details shows cve score found in availabe security update of linux node
 # TYPE cve_details gauge
-cve_details{application="bar",cve_id="CVE-2024-0855",score="LOW",severity="1.5"} 0
-cve_details{application="curl",cve_id="CVE-2024-0853",score="LOW",severity="1.4"} 0
-cve_details{application="foo",cve_id="CVE-2024-0855",score="LOW",severity="1.6"} 0
+cve_details{application="bar",cve_id="CVE-2024-0855",severity="1.5"} 0
+cve_details{application="curl",cve_id="CVE-2024-0853",severity="1.4"} 0
+cve_details{application="foo",cve_id="CVE-2024-0855",,severity="1.6"} 0
 ```
 ![metrices](./assests/metrices.png)
 

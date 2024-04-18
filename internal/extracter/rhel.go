@@ -1,12 +1,14 @@
 package extracter
 
 import (
+	"context"
 	"regexp"
 	"sort"
 	"strings"
 
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/constants"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/model"
+	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 )
 
 type rhelExtractor struct {
@@ -19,6 +21,7 @@ type rhelExtractor struct {
 
 // ExtractCVENumberForGivenChangelog implements Extracter.
 func (r *rhelExtractor) ExtractCVENumberForGivenChangelog(changelog string, currentInstalledVersion string) []string {
+	logger.GetLogger().Info(context.Background(), logMsgExtractCVENumber, nil)
 	scopedChangeLog := r.limitSearchSpace(changelog, currentInstalledVersion)
 	cveIDs := constants.CveRegex.FindAllString(scopedChangeLog, -1)
 	filterMap := make(map[string]struct{})
@@ -69,6 +72,7 @@ func (r *rhelExtractor) limitSearchSpace(changelog string, version string) strin
 
 // ExtractAppWithSecurityUpdate implements Extracter.
 func (r *rhelExtractor) ExtractAppWithSecurityUpdate(text string) []model.AppCVE {
+	logger.GetLogger().Info(context.Background(), logMsgExtractAppsWithSecurityUpdate, nil)
 	lines := strings.Split(text, "\n")
 	processedText := ""
 	for i, line := range lines {
