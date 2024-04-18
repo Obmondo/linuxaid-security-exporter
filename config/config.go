@@ -15,6 +15,7 @@ type Config interface {
 	GetCVEAPITimeout() time.Duration
 	GetCVERequestInterval() time.Duration
 	GetCVECronExpression() string
+	GetServerPort() int
 }
 
 type config struct {
@@ -50,6 +51,7 @@ func (c *config) sanityCheck() {
 	c.GetCVEAPIEndpoint()
 	c.GetCVERequestInterval()
 	c.GetCVECronExpression()
+	c.GetServerPort()
 }
 
 func (c *config) GetCVEAPITimeout() time.Duration {
@@ -116,4 +118,16 @@ func (c *config) GetCVECronExpression() string {
 	}
 
 	return cveCronExpression
+}
+
+func (c *config) GetServerPort() int {
+	if c.viper.GetInt("SERVER_PORT") == 0 && c.viper.GetInt("server.port") == 0 {
+		logger.GetLogger().Fatal(context.Background(), "failed to server port in config and in environment", nil, nil)
+	}
+	serverPort := c.viper.GetInt("SERVER_PORT")
+	if serverPort == 0 {
+		serverPort = c.viper.GetInt("server.port")
+	}
+
+	return serverPort
 }

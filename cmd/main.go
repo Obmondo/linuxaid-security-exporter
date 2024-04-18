@@ -28,7 +28,7 @@ func main() {
 		logger.GetLogger().Fatal(context.Background(), "fatal failed to start cron service", err, nil)
 	}
 
-	server.Start(done)
+	server.Start(done, cfg.GetServerPort())
 
 	crongService.Stop()
 }

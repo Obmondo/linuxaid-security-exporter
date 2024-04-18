@@ -12,6 +12,7 @@
 ### Enviroment variables list 
 
 ```
+SERVER_PORT - this will run server on specified port
 LOGGING_LEVEL - supports debug, info, warn, error ENUMS for logging level(Note this cannot be configuared via YAML file)
 CVE_API_TIMEOUT - sets timeout for request to 3rd party api 
 CVE_API_REQUEST_INTERVAL - sets time interval between each request  to avoid getting rate limited
