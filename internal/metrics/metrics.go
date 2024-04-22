@@ -29,7 +29,7 @@ var kernelCVEDetails = prometheus.NewGaugeVec(
 )
 
 func RegisterMetrics() {
-	prometheus.MustRegister(generalCVEDetails)
+	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails)
 }
 
 func FilterAppsWithNoCVEScore(apps []model.AppCVE) []model.AppCVE {
