@@ -1,0 +1,37 @@
+name: 'security-exporter'
+
+on: [ push ]
+
+jobs:
+  build-package:
+    name: Build package and upload to repo server
+    runs-on: ubuntu-22.04-bantha
+    steps:
+      - name: Checkout code
+        uses: https://gitea.obmondo.com/Obmondo/checkout@v3
+
+      - name: Setup Go
+        uses: https://gitea.obmondo.com/Obmondo/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Build upstream packages
+        run: |
+            make release
+
+      - name: Upload to repo servers
+        if: github.event_name == 'push' && contains(github.ref, 'refs/heads/master')
+        env:
+          PUBLIC_PATH: /vol0/data/packagesign01_var/var/lib/packagesign/repos/incoming/public/
+          USERNAME: ${{ secrets.PACKAGESIGN_USER }}
+          SSH_KEY: ${{ secrets.PACKAGESIGN_SSH_KEY }}
+          HOST: ${{ secrets.PACKAGESIGN_HOST }}
+        run: |
+          apt update
+          apt install -y rsync
+          echo "${SSH_KEY}" > /tmp/ssh_key
+          chmod a=,u=r /tmp/ssh_key
+          eval $(ssh-agent)
+          ssh-add /tmp/ssh_key || (echo 'Broken SSH key. Is the branch protected?' && exit 1)
+          ls -alh dist/*
+          rsync -azv dist/* -e 'ssh -A -o StrictHostKeyChecking=no' "${USERNAME}"@"${HOST}":"${PUBLIC_PATH}"          
