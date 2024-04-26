@@ -18,6 +18,7 @@ jobs:
       - name: Build upstream packages
         run: |
             make release
+            make clean
 
       - name: Upload to repo servers
         if: github.event_name == 'push' && contains(github.ref, 'refs/heads/main')
