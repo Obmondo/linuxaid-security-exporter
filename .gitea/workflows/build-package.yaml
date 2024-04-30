@@ -5,6 +5,8 @@ on: [ push ]
 jobs:
   build-package:
     name: Build package and upload to repo server
+    container:
+      image: harbor.obmondo.com/obmondo/dockerfiles/package-build:1.0.4
     runs-on: ubuntu-22.04-bantha
     steps:
       - name: Checkout code
@@ -17,8 +19,7 @@ jobs:
 
       - name: Build upstream packages
         run: |
-            make release
-            make clean
+            make packages
 
       - name: Upload to repo servers
         if: github.event_name == 'push' && contains(github.ref, 'refs/heads/main')
