@@ -4,8 +4,8 @@ Wants=basic.target
 After=basic.target network.target
 
 [Service]
-EnvironmentFile=-/etc/default/security-exporter
-ExecStart=/opt/obmondo/bin/security-exporter -config=/etc/security-exporter/config.yaml
+EnvironmentFile=-/etc/default/obmondo-security-exporter
+ExecStart=/opt/obmondo/bin/obmondo-security-exporter -config=/etc/obmondo-security-exporter/config.yaml
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 Restart=always
