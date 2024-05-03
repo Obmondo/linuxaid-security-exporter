@@ -59,7 +59,7 @@ func SetCVELabelsValue(appCVEs []model.AppCVE) {
 }
 
 func InitCertname() {
-	result, err := exec.Command("puppet", "agent", "--configprint", "certname").Output()
+	result, err := exec.Command("/opt/puppetlabs/bin/puppet", "agent", "--configprint", "certname").Output()
 	if err != nil {
 		logger.GetLogger().Fatal(context.Background(), "failed to get certname of node", err, nil)
 	}
