@@ -13,7 +13,7 @@ import (
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/metrics"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/model"
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
-	"github.com/go-co-op/gocron"
+	"github.com/go-co-op/gocron/v2"
 )
 
 var errFailedToGetCVEScores = errors.New("unable to fetch cve scores of apps")
@@ -22,7 +22,7 @@ type service struct {
 	actionService    action.Action
 	cveService       cve.CVEService
 	extractorService extracter.Extracter
-	scheduler        *gocron.Scheduler
+	scheduler        gocron.Scheduler
 }
 
 func Start(cfg config.Config, distro constants.Distro) (*service, error) {
@@ -31,16 +31,18 @@ func Start(cfg config.Config, distro constants.Distro) (*service, error) {
 
 	switch {
 	case cfg.GetRunType() == "testing":
-		service.collectCVEMetrics(ctx)
-		return service, nil
-	default:
-		if _, err := service.scheduler.Cron(cfg.GetCVECronExpression()).Do(service.collectCVEMetrics, ctx); err != nil {
+		_, err := service.scheduler.NewJob(gocron.OneTimeJob(gocron.OneTimeJobStartImmediately()), gocron.NewTask(service.collectCVEMetrics, ctx))
+		if err != nil {
 			return nil, err
 		}
-		service.scheduler.SingletonModeAll()
-		service.scheduler.StartAsync()
-		return service, nil
+	default:
+		if _, err := service.scheduler.NewJob(gocron.CronJob(cfg.GetCVECronExpression(), false), gocron.NewTask(service.collectCVEMetrics, ctx), gocron.WithSingletonMode(gocron.LimitModeReschedule)); err != nil {
+			return nil, err
+		}
 	}
+
+	service.scheduler.Start()
+	return service, nil
 }
 
 func (s *service) Stop() {
@@ -48,7 +50,7 @@ func (s *service) Stop() {
 		return
 	}
 
-	s.scheduler.Stop()
+	s.scheduler.Shutdown()
 	logger.GetLogger().Info(context.Background(), "cron stopped successfully", nil)
 }
 
@@ -100,8 +102,12 @@ func (s *service) getAllParamsRelatedToAppWithSecurityUpdate(ctx context.Context
 }
 
 func newService(cfg config.Config, distro constants.Distro) *service {
+	scheduler, err := gocron.NewScheduler(gocron.WithLocation(time.UTC))
+	if err != nil {
+		logger.GetLogger().Fatal(context.Background(), "failed to start scheduler", err, nil)
+	}
 	return &service{
-		scheduler:        gocron.NewScheduler(time.UTC),
+		scheduler:        scheduler,
 		actionService:    action.NewAction(distro),
 		extractorService: extracter.NewExtractor(distro),
 		cveService:       cve.NewCVEService(cfg),

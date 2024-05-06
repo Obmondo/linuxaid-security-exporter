@@ -39,8 +39,9 @@ func (s *service) FillAppsDataWithCVEScore(appCVEs ...model.AppCVE) ([]model.App
 }
 
 func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, error) {
+	cveIDWithNoScore := make(map[string]bool)
 	for _, cveID := range appCVE.CVEID {
-		logger.GetLogger().Info(context.Background(), "fetching cve score for app", map[string]any{"app-name": appCVE.Name, "cveID": appCVE.CVEID})
+		logger.GetLogger().Info(context.Background(), "fetching cve score for app", map[string]any{"app-name": appCVE.Name, "cveID": cveID})
 		nvdAPIResponse, err := s.getCVEFromAPI(cveID, appCVE.Name)
 		if err != nil {
 			return appCVE, err
@@ -54,12 +55,22 @@ func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, error) {
 						Metrics.
 						CvssMetricV31[0].CvssData.BaseScore))
 		} else {
+			cveIDWithNoScore[cveID] = true
 			logger.GetLogger().Error(context.Background(), "json did not contain CVE Score", errors.New("response json did not had CVE Score"), map[string]any{"app-name": appCVE.Name})
 		}
 
 		// this timer throttle request flow to 3party api
 		<-s.sustainableRate.C
 	}
+	filteredCVEWithResponse := make([]string, 0, len(appCVE.CVEID)-len(cveIDWithNoScore))
+	for _, cveID := range appCVE.CVEID {
+		if cveIDWithNoScore[cveID] {
+			continue
+		}
+		filteredCVEWithResponse = append(filteredCVEWithResponse, cveID)
+	}
+
+	appCVE.CVEID = filteredCVEWithResponse
 
 	return appCVE, nil
 }
