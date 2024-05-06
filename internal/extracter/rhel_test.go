@@ -1155,7 +1155,7 @@ changelog stats. 2 pkgs, 2 source pkgs, 302 changelogs`
 
 var expectedRHELOutputForExtractCVENumberForGivenChangelog = []string{"CVE-2022-43552", "CVE-2020-8177", "CVE-2019-5482"}
 
-var inputRHELForExtractSecurityUpdatesApps = `Updating Subscription Management repositories.
+var inputRHELForExtractSecurityUpdatesApps = []string{`Updating Subscription Management repositories.
 Last metadata expiration check: 0:10:32 ago on Thursday 21 March 2024 08:10:06 AM CET.
 
 NetworkManager.x86_64                                                           1:1.40.16-13.el8_9                                                                      rhel-8-for-x86_64-baseos-rpms
@@ -1163,9 +1163,30 @@ NetworkManager-config-server.noarch                                             
 NetworkManager-wwan.x86_64                                                      1:1.40.16-13.el8_9                                                                      rhel-8-for-x86_64-baseos-rpms
 bpftool.x86_64                                                                  4.18.0-513.18.1.el8_9                                                                   rhel-8-for-x86_64-baseos-rpms
 buildah.x86_64                                                                  1:1.31.3-3.module+el8.9.0+21243+a586538b                                                rhel-8-for-x86_64-appstream-rpms
-containernetworking-plugins.x86_64                                              1:1.3.0-8.module+el8.9.0+21243+a586538b                                                 rhel-8-for-x86_64-appstream-rpms`
+containernetworking-plugins.x86_64                                              1:1.3.0-8.module+el8.9.0+21243+a586538b                                                 rhel-8-for-x86_64-appstream-rpms`,
+	`Loaded plugins: fastestmirror, versionlock
+Loading mirror speeds from cached hostfile
+ * epel: mirror.de.leaseweb.net
+ --> libappindicator-devel-12.10.0-13.el7.i686 from base excluded (updateinfo)
+ --> libappindicator-devel-12.10.0-13.el7.x86_64 from base excluded (updateinfo)
+ --> libao-1.1.0-8.el7.i686 from base excluded (updateinfo)
+ --> libao-1.1.0-8.el7.x86_64 from base excluded (updateinfo)
+ --> libaio-devel-0.3.109-13.el7.i686 from base excluded (updateinfo)
+ --> libaio-devel-0.3.109-13.el7.x86_64 from base excluded (updateinfo)
+ --> libappindicator-12.10.0-13.el7.i686 from base excluded (updateinfo)
+ --> libappindicator-12.10.0-13.el7.x86_64 from base excluded (updateinfo)
+ --> libao-devel-1.1.0-8.el7.i686 from base excluded (updateinfo)
+ --> libao-devel-1.1.0-8.el7.x86_64 from base excluded (updateinfo)
+ --> rhythmbox-3.4.2-2.el7.x86_64 from base excluded (updateinfo)
+ --> rhythmbox-devel-3.4.2-2.el7.x86_64 from base excluded (updateinfo)
+ --> poppler-devel-0.26.5-43.el7.x86_64 from base excluded (updateinfo)
+ --> poppler-devel-0.26.5-43.el7.i686 from base excluded (updateinfo)
+ --> blas-3.4.2-8.el7.i686 from base excluded (updateinfo)
+ --> 2:rmt-1.5.2-13.el7.x86_64 from base excluded (updateinfo)
+ perl-Clipboard.noarch                      0.29-1.el7                       epel`,
+}
 
-var expectedRHELOutForExtractSecurityUpdateApps = []string{"NetworkManager", "NetworkManager-config-server", "NetworkManager-wwan", "bpftool", "buildah", "containernetworking-plugins"}
+var expectedRHELOutForExtractSecurityUpdateApps = [][]string{{"NetworkManager", "NetworkManager-config-server", "NetworkManager-wwan", "bpftool", "buildah", "containernetworking-plugins"}, {"perl-Clipboard"}}
 
 func TestExtractCVENumberForGivenChangelog(t *testing.T) {
 	assert := require.New(t)
@@ -1178,12 +1199,13 @@ func TestExtractCVENumberForGivenChangelog(t *testing.T) {
 func TestExtractSecurityUpdatesApps(t *testing.T) {
 	assert := require.New(t)
 	extractor := newRhelExtactor()
-
-	outputs := extractor.ExtractAppWithSecurityUpdate(inputRHELForExtractSecurityUpdatesApps)
-	assert.NotEmpty(outputs)
-	assert.Equal(len(expectedRHELOutForExtractSecurityUpdateApps), len(outputs))
-
-	for i, output := range outputs {
-		assert.Equal(expectedRHELOutForExtractSecurityUpdateApps[i], output.Name)
+	for i, inputRHELForExtractSecurityUpdatesApp := range inputRHELForExtractSecurityUpdatesApps {
+		outputs := extractor.ExtractAppWithSecurityUpdate(inputRHELForExtractSecurityUpdatesApp)
+		assert.NotEmpty(outputs)
+		assert.Equal(len(expectedRHELOutForExtractSecurityUpdateApps[i]), len(outputs))
+		for j, output := range outputs {
+			assert.Equal(expectedRHELOutForExtractSecurityUpdateApps[i][j], output.Name, expectedRHELOutForExtractSecurityUpdateApps[i][j])
+		}
 	}
+
 }
