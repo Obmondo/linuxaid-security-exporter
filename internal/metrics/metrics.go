@@ -47,6 +47,7 @@ func FilterAppsWithNoCVEScore(apps []model.AppCVE) []model.AppCVE {
 }
 
 func SetCVELabelsValue(appCVEs []model.AppCVE) {
+	logger.GetLogger().Info(context.Background(), "setting cve metrics", nil)
 	for _, appCVE := range appCVEs {
 		for i := range appCVE.CVEID {
 			if strings.Contains(appCVE.Name, "kernel") {

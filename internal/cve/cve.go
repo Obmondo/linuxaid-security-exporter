@@ -40,6 +40,7 @@ func (s *service) FillAppsDataWithCVEScore(appCVEs ...model.AppCVE) ([]model.App
 
 func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, error) {
 	for _, cveID := range appCVE.CVEID {
+		logger.GetLogger().Info(context.Background(), "fetching cve score for app", map[string]any{"app-name": appCVE.Name, "cveID": appCVE.CVEID})
 		nvdAPIResponse, err := s.getCVEFromAPI(cveID, appCVE.Name)
 		if err != nil {
 			return appCVE, err

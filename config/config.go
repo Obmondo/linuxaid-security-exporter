@@ -16,6 +16,7 @@ type Config interface {
 	GetCVERequestInterval() time.Duration
 	GetCVECronExpression() string
 	GetServerPort() int
+	GetRunType() string
 }
 
 type config struct {
@@ -130,4 +131,11 @@ func (c *config) GetServerPort() int {
 	}
 
 	return serverPort
+}
+
+func (c *config) GetRunType() string {
+	if len(c.viper.GetString("server.run_type")) == 0 {
+		return "normal"
+	}
+	return c.viper.GetString("server.run_type")
 }

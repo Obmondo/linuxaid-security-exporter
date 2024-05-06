@@ -1,6 +1,6 @@
 export NAME=obmondo-security-exporter
-export RELEASE=1.0.4-1
-export VERSION=1.0.4-1
+export RELEASE=1.0.4-2
+export VERSION=1.0.4-2
 ## make sure that dist folder is created at root of project before building
 export DIST=./dist
 export MAINTAINER=Rishikesh <rishikesh@enableit.dk>
@@ -32,8 +32,6 @@ $(DIST)/$(NAME)_$(VERSION)_amd64.deb:  $(NAME).service postinstall
 	--package $(DIST) \
 	--version $(VERSION) \
 	--deb-systemd=$(NAME).service \
-	--deb-systemd-enable \
-	--deb-systemd-auto-start \
 	--deb-systemd-restart-after-upgrade \
 	--after-install postinstall \
 	$(DIST)/$(NAME)=/opt/obmondo/bin/$(NAME) \

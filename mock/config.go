@@ -38,6 +38,10 @@ func (c *mockConfig) GetServerPort() int {
 	return c.viper.GetInt("server.port")
 }
 
+func (c *mockConfig) GetRunType() string {
+	return "normal"
+}
+
 func MockConfig(path string) config.Config {
 	viperConfig := viper.New()
 	viperConfig.SetConfigFile(path)

@@ -27,14 +27,20 @@ type service struct {
 
 func Start(cfg config.Config, distro constants.Distro) (*service, error) {
 	service := newService(cfg, distro)
-
 	ctx := context.Background()
-	if _, err := service.scheduler.Cron(cfg.GetCVECronExpression()).Do(service.collectCVEMetrics, ctx); err != nil {
-		return nil, err
-	}
 
-	service.scheduler.StartAsync()
-	return service, nil
+	switch {
+	case cfg.GetRunType() == "testing":
+		service.collectCVEMetrics(ctx)
+		return service, nil
+	default:
+		if _, err := service.scheduler.Cron(cfg.GetCVECronExpression()).Do(service.collectCVEMetrics, ctx); err != nil {
+			return nil, err
+		}
+		service.scheduler.SingletonModeAll()
+		service.scheduler.StartAsync()
+		return service, nil
+	}
 }
 
 func (s *service) Stop() {
@@ -76,6 +82,7 @@ func (s *service) collectCVEMetrics(ctx context.Context) {
 func (s *service) getAllParamsRelatedToAppWithSecurityUpdate(ctx context.Context, output string) []model.AppCVE {
 	apps := s.extractorService.ExtractAppWithSecurityUpdate(output)
 	for i, app := range apps {
+		logger.GetLogger().Info(ctx, "starting to process app", map[string]any{"index": i, "app-name": app.Name})
 		version, err := s.actionService.GetCurrentPackageVersion(app.Name)
 		if err != nil {
 			logger.GetLogger().Error(ctx, "failed to to get current pkg version", err, nil)
