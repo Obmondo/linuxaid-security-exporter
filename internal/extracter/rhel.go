@@ -4,6 +4,7 @@ import (
 	"context"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/constants"
@@ -12,7 +13,16 @@ import (
 )
 
 type rhelExtractor struct {
-	appRegex *regexp.Regexp
+	versionMap map[string]bool
+	appRegex   *regexp.Regexp
+}
+
+func fillVersionMap() map[string]bool {
+	versionMap := make(map[string]bool)
+	for i := 0; i < 10; i++ {
+		versionMap[strconv.Itoa(i)] = true
+	}
+	return versionMap
 }
 
 /*
@@ -88,8 +98,18 @@ func (r *rhelExtractor) ExtractAppWithSecurityUpdate(text string) []model.AppCVE
 
 	appCVEs := make([]model.AppCVE, 0, len(pkgs))
 	for _, pkg := range pkgs {
+		name := strings.TrimSpace(pkg[1])
+		lastHyphenIndex := strings.LastIndex(name, "-")
+		if lastHyphenIndex != -1 && lastHyphenIndex+2 < len(name)-2 && r.versionMap[string(name[lastHyphenIndex+1:lastHyphenIndex+2])] {
+
+			appCVEs = append(appCVEs, model.AppCVE{
+				Name: name[:lastHyphenIndex],
+			})
+			continue
+		}
+
 		appCVEs = append(appCVEs, model.AppCVE{
-			Name: strings.TrimSpace(pkg[1]),
+			Name: name,
 		})
 	}
 
@@ -98,6 +118,7 @@ func (r *rhelExtractor) ExtractAppWithSecurityUpdate(text string) []model.AppCVE
 
 func newRhelExtactor() Extracter {
 	return &rhelExtractor{
-		appRegex: regexp.MustCompile(`(\S+)\.(?:x86_64|noarch)\b`),
+		versionMap: fillVersionMap(),
+		appRegex:   regexp.MustCompile(`(\S+)\.(?:x86_64|noarch)\b`),
 	}
 }

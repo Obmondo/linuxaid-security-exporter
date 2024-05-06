@@ -44,14 +44,17 @@ func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, error) {
 		if err != nil {
 			return appCVE, err
 		}
-
-		appCVE.CVEScore = append(appCVE.CVEScore,
-			fmt.Sprintf("%.1f",
-				nvdAPIResponse.
-					Vulnerabilities[0].
-					Cve.
-					Metrics.
-					CvssMetricV31[0].CvssData.BaseScore))
+		if nvdAPIResponse.Vulnerabilities != nil && len(nvdAPIResponse.Vulnerabilities[0].Cve.Metrics.CvssMetricV31) != 0 {
+			appCVE.CVEScore = append(appCVE.CVEScore,
+				fmt.Sprintf("%.1f",
+					nvdAPIResponse.
+						Vulnerabilities[0].
+						Cve.
+						Metrics.
+						CvssMetricV31[0].CvssData.BaseScore))
+		} else {
+			logger.GetLogger().Error(context.Background(), "json did not contain CVE Score", errors.New("response json did not had CVE Score"), map[string]any{"app-name": appCVE.Name})
+		}
 
 		// this timer throttle request flow to 3party api
 		<-s.sustainableRate.C

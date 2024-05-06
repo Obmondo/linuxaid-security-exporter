@@ -52,6 +52,10 @@ func prepareExpectedOutput() []model.AppCVE {
 			Name:  "foo",
 			CVEID: []string{"CVE-2024-0855"},
 		},
+		{
+			Name:  "foo",
+			CVEID: []string{"CVE-2024-0856"},
+		},
 	}
 }
 
@@ -68,6 +72,10 @@ func prepareMockDataForTestCVE() []model.AppCVE {
 		{
 			Name:  "foo",
 			CVEID: []string{"CVE-2024-0855"},
+		},
+		{
+			Name:  "foo",
+			CVEID: []string{"CVE-2024-0856"},
 		},
 	}
 

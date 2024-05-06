@@ -6,7 +6,7 @@
 ## Requriements before running the application 
 
 - puppet must be installed 
-- For distro's which use YUM, the application expects `yum security plugin` to be installed
+- For distro's which use YUM, the application expects `yum security plugin and yum changelog plugin` to be installed
 
 
 ### Enviroment variables list 
