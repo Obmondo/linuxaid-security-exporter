@@ -12,7 +12,7 @@ type rhel struct{}
 // CheckSecurityForSecurityUpdate implements Action.
 func (*rhel) CheckSecurityForSecurityUpdate() (string, error) {
 	logger.GetLogger().Info(context.Background(), logMsgCheckForSecurityUpdate, nil)
-	cmd := exec.Command("bash", "-c", "yum --security check-update")
+	cmd := exec.Command("yum", "--security", "check-update")
 	output, err := cmd.Output()
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
@@ -27,7 +27,7 @@ func (*rhel) CheckSecurityForSecurityUpdate() (string, error) {
 // GetChangelogs implements Action.
 func (*rhel) GetChangelogs(packageName string) (string, error) {
 	logger.GetLogger().Info(context.Background(), logMsgGetChangeLogForPackage, map[string]any{"pkg-name": packageName})
-	cmd := exec.Command("bash", "-c", "yum changelog "+packageName)
+	cmd := exec.Command("yum", "changelog", packageName)
 	output, err := cmd.Output()
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
@@ -41,7 +41,7 @@ func (*rhel) GetChangelogs(packageName string) (string, error) {
 // GetCurrentPackageVersion implements Action.
 func (*rhel) GetCurrentPackageVersion(packageName string) (string, error) {
 	logger.GetLogger().Info(context.Background(), logMsgGetPackageVersion, map[string]any{"pkg-name": packageName})
-	cmd := exec.Command("bash", "-c", "yum info"+packageName)
+	cmd := exec.Command("yum", "info", packageName)
 	output, err := cmd.Output()
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
