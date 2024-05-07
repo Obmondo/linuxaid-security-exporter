@@ -27,26 +27,27 @@ type service struct {
 // FillAppsDataWithCVEScore implements CVEService.
 func (s *service) FillAppsDataWithCVEScore(appCVEs ...model.AppCVE) ([]model.AppCVE, []error) {
 	logger.GetLogger().Info(context.Background(), "fetching cve scores for packages", nil)
-	errs := []error{}
+	errs := make([]error, 0, len(appCVEs))
 	for i, appCVE := range appCVEs {
-		cves, err := s.processAppCVE(appCVE)
-		if err != nil {
-			errs = append(errs, err)
+		cves, errList := s.processAppCVE(appCVE)
+		if len(errList) != 0 {
+			errs = append(errs, errList...)
 		}
 		appCVEs[i] = cves
 	}
 	return appCVEs, errs
 }
 
-func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, error) {
+func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, []error) {
+	errs := []error{}
 	cveIDWithNoScore := make(map[string]bool)
 	for _, cveID := range appCVE.CVEID {
 		logger.GetLogger().Info(context.Background(), "fetching cve score for app", map[string]any{"app-name": appCVE.Name, "cveID": cveID})
 		nvdAPIResponse, err := s.getCVEFromAPI(cveID, appCVE.Name)
 		if err != nil {
-			return appCVE, err
+			errs = append(errs, err)
 		}
-		if nvdAPIResponse.Vulnerabilities != nil && len(nvdAPIResponse.Vulnerabilities[0].Cve.Metrics.CvssMetricV31) != 0 {
+		if nvdAPIResponse != nil && nvdAPIResponse.Vulnerabilities != nil && len(nvdAPIResponse.Vulnerabilities[0].Cve.Metrics.CvssMetricV31) != 0 {
 			appCVE.CVEScore = append(appCVE.CVEScore,
 				fmt.Sprintf("%.1f",
 					nvdAPIResponse.
@@ -62,17 +63,21 @@ func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, error) {
 		// this timer throttle request flow to 3party api
 		<-s.sustainableRate.C
 	}
-	filteredCVEWithResponse := make([]string, 0, len(appCVE.CVEID)-len(cveIDWithNoScore))
-	for _, cveID := range appCVE.CVEID {
-		if cveIDWithNoScore[cveID] {
+
+	return s.filterAppCVEID(appCVE, cveIDWithNoScore), errs
+}
+
+func (s *service) filterAppCVEID(app model.AppCVE, mp map[string]bool) model.AppCVE {
+	filteredCVEWithResponse := make([]string, 0, len(app.CVEID)-len(mp))
+	for _, cveID := range app.CVEID {
+		if mp[cveID] {
 			continue
 		}
 		filteredCVEWithResponse = append(filteredCVEWithResponse, cveID)
 	}
 
-	appCVE.CVEID = filteredCVEWithResponse
-
-	return appCVE, nil
+	app.CVEID = filteredCVEWithResponse
+	return app
 }
 
 func (s *service) getCVEFromAPI(cveID string, appName string) (*model.NVDJsonRespone, error) {
