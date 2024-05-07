@@ -36,7 +36,7 @@ func FilterAppsWithNoCVEScore(apps []model.AppCVE) []model.AppCVE {
 	logger.GetLogger().Info(context.Background(), "working on filtering out apps with no cve scores", nil)
 	filteredApps := make([]model.AppCVE, 0, len(apps))
 	for _, app := range apps {
-		if len(app.CVEScore) != 0 {
+		if len(app.CVEScore) != 0 || len(app.CVEID) != 0 {
 			filteredApps = append(filteredApps, app)
 			continue
 		}
