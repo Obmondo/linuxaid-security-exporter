@@ -3,6 +3,7 @@ package action
 import (
 	"context"
 	"os/exec"
+	"strings"
 
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 )
@@ -14,7 +15,7 @@ func (*rhel) CheckSecurityForSecurityUpdate() (string, error) {
 	logger.GetLogger().Info(context.Background(), logMsgCheckForSecurityUpdate, nil)
 	cmd := exec.Command("yum", "--security", "check-update")
 	output, err := cmd.Output()
-	if err != nil {
+	if err != nil && strings.Contains(err.Error(), "exit status 100") {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			logger.GetLogger().Error(context.Background(), "failed to get security update via YUM", err, map[string]any{"output": string(output), "stderr": exitErr.Stderr})
 		}
