@@ -36,7 +36,8 @@ func FilterAppsWithNoCVEScore(apps []model.AppCVE) []model.AppCVE {
 	logger.GetLogger().Info(context.Background(), "working on filtering out apps with no cve scores", nil)
 	filteredApps := make([]model.AppCVE, 0, len(apps))
 	for _, app := range apps {
-		if len(app.CVEScore) != 0 || len(app.CVEID) != 0 {
+		logger.GetLogger().Info(context.Background(), "filter process", map[string]any{"app-name": app.Name, "cveIDs": app.CVEID, "cveScore": app.CVEScore})
+		if len(app.CVEScore) != 0 && len(app.CVEID) != 0 {
 			filteredApps = append(filteredApps, app)
 			continue
 		}
@@ -49,6 +50,7 @@ func FilterAppsWithNoCVEScore(apps []model.AppCVE) []model.AppCVE {
 func SetCVELabelsValue(appCVEs []model.AppCVE) {
 	logger.GetLogger().Info(context.Background(), "setting cve metrics", nil)
 	for _, appCVE := range appCVEs {
+		logger.GetLogger().Info(context.Background(), "setting metric", map[string]any{"app-name": appCVE.Name, "cveIDs": appCVE.CVEID, "cveScore": appCVE.CVEScore})
 		for i := range appCVE.CVEID {
 			if strings.Contains(appCVE.Name, "kernel") {
 				kernelCVEDetails.WithLabelValues(certname, appCVE.Name, appCVE.CVEID[i], appCVE.CVEScore[i])
