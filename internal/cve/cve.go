@@ -27,6 +27,9 @@ type service struct {
 // FillAppsDataWithCVEScore implements CVEService.
 func (s *service) FillAppsDataWithCVEScore(appCVEs ...model.AppCVE) ([]model.AppCVE, []error) {
 	logger.GetLogger().Info(context.Background(), "fetching cve scores for packages", nil)
+	s.sustainableRate = time.NewTicker(s.cfg.GetCVERequestInterval())
+	defer s.sustainableRate.Stop()
+
 	errs := make([]error, 0, len(appCVEs))
 	for i, appCVE := range appCVEs {
 		cves, errList := s.processAppCVE(appCVE)
@@ -42,6 +45,8 @@ func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, []error) {
 	errs := []error{}
 	cveIDWithNoScore := make(map[string]bool)
 	for _, cveID := range appCVE.CVEID {
+		<-s.sustainableRate.C
+
 		logger.GetLogger().Info(context.Background(), "fetching cve score for app", map[string]any{"app-name": appCVE.Name, "cveID": cveID})
 		nvdAPIResponse, err := s.getCVEFromAPI(cveID, appCVE.Name)
 		if err != nil {
@@ -60,8 +65,6 @@ func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, []error) {
 			logger.GetLogger().Error(context.Background(), "json did not contain CVE Score", errors.New("response json did not had CVE Score"), map[string]any{"app-name": appCVE.Name})
 		}
 
-		// this timer throttle request flow to 3party api
-		<-s.sustainableRate.C
 	}
 
 	return s.filterAppCVEID(appCVE, cveIDWithNoScore), errs
@@ -121,7 +124,6 @@ func NewCVEService(cfg config.Config) CVEService {
 		client: &http.Client{
 			Timeout: time.Duration(cfg.GetCVEAPITimeout()),
 		},
-		sustainableRate: time.NewTicker(cfg.GetCVERequestInterval()),
-		cfg:             cfg,
+		cfg: cfg,
 	}
 }
