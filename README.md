@@ -9,6 +9,23 @@
 - For distro's which use YUM, the application expects `yum security plugin and yum changelog plugin` to be installed
 
 
+## Doing a test run on an actual server
+
+For doing a test run on an actual server you need to set `run_type` in config.yaml which is located at `/etc/obmondo-security-exporter/config.yaml
+`. Be sure to look at [obmondo-security-exporter.service](./obmondo-security-exporter.service)
+
+```yaml 
+server:
+  run_type: testing
+```
+
+
+### Note
+
+- When making a change to code or config.local.yaml file please make sure to bump version [in make file](./Makefile)
+- currently path to puppet executable is hardcoded if you wan to do a local run please make sure to change path [here](./internal/metrics/metrics.go)
+
+
 ### Enviroment variables list 
 
 ```
