@@ -86,26 +86,27 @@ func (s *service) filterAppCVEID(app model.AppCVE, mp map[string]bool) model.App
 func (s *service) getCVEFromAPI(cveID string, appName string) (*model.NVDJsonRespone, error) {
 	url := fmt.Sprintf("%s%s?%s=%s", s.cfg.GetCVEAPI(), s.cfg.GetCVEAPIEndpoint(), constants.ParamCVEID, cveID)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
+	logger.GetLogger().Info(context.Background(), "creating request", map[string]any{"app-name": appName, "url": url})
 	if err != nil {
-		logger.GetLogger().Error(req.Context(), "failed to create request", err, map[string]any{"app-name": appName})
+		logger.GetLogger().Error(context.Background(), "failed to create request", err, map[string]any{"app-name": appName})
 		return nil, err
 	}
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		logger.GetLogger().Error(resp.Request.Context(), "failed to get cve data from 3rd party api", err, map[string]any{"app-name": appName})
+		logger.GetLogger().Error(context.Background(), "failed to get cve data from 3rd party api", err, map[string]any{"app-name": appName})
 		return nil, err
 	}
 
 	if resp.StatusCode == http.StatusForbidden {
-		logger.GetLogger().Error(resp.Request.Context(), "failed to get cve data due to ratelimit", err, map[string]any{"status code": resp.StatusCode, "app-name": appName})
+		logger.GetLogger().Error(context.Background(), "failed to get cve data due to ratelimit", err, map[string]any{"status code": resp.StatusCode, "app-name": appName})
 		return nil, errors.New("rate limit reached")
 	}
 
 	defer func() {
 		if resp.Body != nil {
 			if err := resp.Body.Close(); err != nil {
-				logger.GetLogger().Error(resp.Request.Context(), "failed to close response body", err, map[string]any{"app-name": appName})
+				logger.GetLogger().Error(context.Background(), "failed to close response body", err, map[string]any{"app-name": appName})
 			}
 		}
 	}()
