@@ -34,7 +34,7 @@ func main() {
 }
 
 func configPath() *string {
-	path := flag.String("config", "./config/config.local.yaml", "Path to the config file")
+	path := flag.String("config", "/etc/obmondo-security-exporter/config.yaml", "Path to the config file")
 	flag.Parse()
 
 	logger.GetLogger().Info(context.Background(), "loaded config path", map[string]any{"config path": path})
