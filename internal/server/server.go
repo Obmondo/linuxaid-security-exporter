@@ -12,9 +12,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func Start(done chan os.Signal, port int) {
+func Start(done chan os.Signal, host string, port int) {
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
+		Addr:    fmt.Sprintf("%s:%d", host, port),
 		Handler: promhttp.Handler(),
 	}
 	go func() {

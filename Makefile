@@ -1,5 +1,5 @@
 export NAME=obmondo-security-exporter
-export VERSION=1.0.7
+export VERSION=1.0.8
 ## make sure that dist folder is created at root of project before building
 export DIST=./dist
 export MAINTAINER=Rishikesh <rishikesh@enableit.dk>
