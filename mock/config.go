@@ -13,6 +13,11 @@ type mockConfig struct {
 	viper *viper.Viper
 }
 
+// GetServerHost implements config.Config.
+func (m *mockConfig) GetServerHost() string {
+	return m.viper.GetString("server.host")
+}
+
 // GetCVECronExpression implements config.Config.
 func (m *mockConfig) GetCVECronExpression() string {
 	return m.viper.GetString("cron_expression")

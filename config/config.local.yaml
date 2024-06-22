@@ -7,4 +7,5 @@ cve_api:
 cron_expression: "00 23 * * *"
 
 server:
+  host: localhost
   port: 8982

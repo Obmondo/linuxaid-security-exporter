@@ -17,6 +17,7 @@ type Config interface {
 	GetCVECronExpression() string
 	GetServerPort() int
 	GetRunType() string
+	GetServerHost() string
 }
 
 type config struct {
@@ -138,4 +139,17 @@ func (c *config) GetRunType() string {
 		return "normal"
 	}
 	return c.viper.GetString("server.run_type")
+}
+
+// GetServerHost implements Config.
+func (c *config) GetServerHost() string {
+	if len(c.viper.GetString("SERVER_HOST")) == 0 && len(c.viper.GetString("server.host")) == 0 {
+		logger.GetLogger().Fatal(context.Background(), "failed to find server host in config and in environment", nil, nil)
+	}
+	serverHost := c.viper.GetString("SERVER_HOST")
+	if len(serverHost) == 0 {
+		serverHost = c.viper.GetString("server.host")
+	}
+
+	return serverHost
 }
