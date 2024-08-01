@@ -17,6 +17,14 @@ const (
 var CveRegex = regexp.MustCompile(`CVE-\d{4}-\d{4,7}`)
 
 const (
-	RUN_TYPE_NORMAL = "normal"
-	RUN_TYPE_TEST   = "testing"
+	RunTypeTest = "testing"
 )
+
+const (
+	Certname    = "certname"
+	Application = "application"
+	CveID       = "cve_id"
+	Score       = "score"
+)
+
+var CveDetailsLabels = []string{Application, CveID, Score}

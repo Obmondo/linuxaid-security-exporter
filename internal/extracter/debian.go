@@ -37,7 +37,7 @@ func (d *debianExtractor) ExtractCVENumberForGivenChangelog(changelog string, cu
 }
 
 func (d *debianExtractor) limitSearchSpace(changelog string, currentInstalledVersion string) string {
-	if strings.Index(changelog, "\n") != -1 {
+	if strings.Contains(changelog, "\n") {
 		changelog = changelog[strings.Index(changelog, "\n")+1:]
 	}
 

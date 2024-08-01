@@ -1,0 +1,26 @@
+name: 'security-exporter-work-flow'
+"on":
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches: [main]
+
+jobs:
+  golangci-lint:
+    runs-on: ubuntu-22.04-htzhel1-ax42-a
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.59.1

@@ -30,7 +30,7 @@ func Start(cfg config.Config, distro constants.Distro) (*service, error) {
 	ctx := context.Background()
 
 	switch {
-	case cfg.GetRunType() == "testing":
+	case cfg.GetRunType() == constants.RunTypeTest:
 		_, err := service.scheduler.NewJob(gocron.OneTimeJob(gocron.OneTimeJobStartImmediately()), gocron.NewTask(service.collectCVEMetrics, ctx))
 		if err != nil {
 			return nil, err
@@ -50,7 +50,9 @@ func (s *service) Stop() {
 		return
 	}
 
-	s.scheduler.Shutdown()
+	if err := s.scheduler.Shutdown(); err != nil {
+		logger.GetLogger().Error(context.Background(), "cron failed to shutdown", err, nil)
+	}
 	logger.GetLogger().Info(context.Background(), "cron stopped successfully", nil)
 }
 
@@ -61,6 +63,7 @@ func (s *service) collectCVEMetrics(ctx context.Context) {
 		logger.GetLogger().Error(ctx, "failed to find security update", err, nil)
 		return
 	}
+	metrics.SetNumberOfAppsWithSecurityUpdate(len(output))
 
 	// fills  appCVE slice with current versison and CVEIds
 	apps := s.getAllParamsRelatedToAppWithSecurityUpdate(ctx, output)
@@ -77,8 +80,8 @@ func (s *service) collectCVEMetrics(ctx context.Context) {
 	if len(errs) != 0 {
 		logger.GetLogger().Info(ctx, "errors occured while fetching cve scores of apps, not all apps maybe present in metrics", map[string]any{"errors": errs})
 	}
-
-	metrics.SetCVELabelsValue(metrics.FilterAppsWithNoCVEScore(apps))
+	apps = metrics.FilterAppsWithNoCVEScore(apps)
+	metrics.SetCVELabelsValue(apps)
 }
 
 func (s *service) getAllParamsRelatedToAppWithSecurityUpdate(ctx context.Context, output string) []model.AppCVE {
