@@ -2,22 +2,25 @@ package metrics
 
 import (
 	"context"
-	"os/exec"
 	"strings"
 
+	"gitea.obmondo.com/EnableIT/security-exporter/internal/constants"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/model"
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var certname string
+var numberOfAppsWithSecurityUpdate = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "number_of_apps_with_security_update",
+	Help: "shows number of applications which has security update",
+})
 
 var generalCVEDetails = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
 		Name: "generalCVEDetails",
 		Help: "shows cve score found in availabe security update of linux node",
 	},
-	[]string{"certname", "application", "cve_id", "score"},
+	constants.CveDetailsLabels,
 )
 
 var kernelCVEDetails = prometheus.NewGaugeVec(
@@ -25,11 +28,11 @@ var kernelCVEDetails = prometheus.NewGaugeVec(
 		Name: "kernelCVEDetails",
 		Help: "shows cve score found in availabe security update of linux node",
 	},
-	[]string{"certname", "application", "cve_id", "score"},
+	constants.CveDetailsLabels,
 )
 
 func RegisterMetrics() {
-	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails)
+	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails, numberOfAppsWithSecurityUpdate)
 }
 
 func FilterAppsWithNoCVEScore(apps []model.AppCVE) []model.AppCVE {
@@ -53,21 +56,14 @@ func SetCVELabelsValue(appCVEs []model.AppCVE) {
 		logger.GetLogger().Info(context.Background(), "setting metric", map[string]any{"app-name": appCVE.Name, "cveIDs": appCVE.CVEID, "cveScore": appCVE.CVEScore})
 		for i := range appCVE.CVEID {
 			if strings.Contains(appCVE.Name, "kernel") {
-				kernelCVEDetails.WithLabelValues(certname, appCVE.Name, appCVE.CVEID[i], appCVE.CVEScore[i])
+				kernelCVEDetails.WithLabelValues(appCVE.Name, appCVE.CVEID[i], appCVE.CVEScore[i])
 				continue
 			}
-			generalCVEDetails.WithLabelValues(certname, appCVE.Name, appCVE.CVEID[i], appCVE.CVEScore[i])
+			generalCVEDetails.WithLabelValues(appCVE.Name, appCVE.CVEID[i], appCVE.CVEScore[i])
 		}
 	}
 }
 
-func InitCertname() {
-	result, err := exec.Command("/opt/puppetlabs/bin/puppet", "agent", "--configprint", "certname").Output()
-	if err != nil {
-		logger.GetLogger().Fatal(context.Background(), "failed to get certname of node", err, nil)
-	}
-	if string(result) == "" {
-		logger.GetLogger().Fatal(context.Background(), "certname is empty", err, nil)
-	}
-	certname = string(result)
+func SetNumberOfAppsWithSecurityUpdate(count int) {
+	numberOfAppsWithSecurityUpdate.Set(float64(count))
 }

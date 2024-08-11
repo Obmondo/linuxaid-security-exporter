@@ -42,9 +42,13 @@ func NewConfig(configPath string) Config {
 	// read the environment variables and store the values in store
 	viperConfig.AutomaticEnv()
 
-	return &config{
+	cfg := &config{
 		viper: viperConfig,
 	}
+
+	cfg.sanityCheck()
+
+	return cfg
 }
 
 func (c *config) sanityCheck() {
