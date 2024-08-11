@@ -42,7 +42,7 @@ func (*rhel) GetChangelogs(packageName string) (string, error) {
 // GetCurrentPackageVersion implements Action.
 func (*rhel) GetCurrentPackageVersion(packageName string) (string, error) {
 	logger.GetLogger().Info(context.Background(), logMsgGetPackageVersion, map[string]any{"pkg-name": packageName})
-	cmd := exec.Command("yum", "info", packageName)
+	cmd := exec.Command("rpm", "-q", "--qf", "%{VERSION}-%{RELEASE}", packageName)
 	output, err := cmd.Output()
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
