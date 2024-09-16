@@ -12,6 +12,8 @@ import (
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 )
 
+var _ Extracter = &rhelExtractor{}
+
 type rhelExtractor struct {
 	versionMap map[string]bool
 	appRegex   *regexp.Regexp
@@ -135,7 +137,7 @@ func (r *rhelExtractor) findHyphenIndexs(str string) int {
 
 	return -1
 }
-func newRhelExtactor() Extracter {
+func newRhelExtactor() *rhelExtractor {
 	return &rhelExtractor{
 		versionMap: fillVersionMap(),
 		appRegex:   regexp.MustCompile(`(\S+)\.(?:x86_64|noarch|i686)\b`),

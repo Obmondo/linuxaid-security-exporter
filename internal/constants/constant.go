@@ -7,6 +7,7 @@ type Distro string
 const (
 	DEBIAN  Distro = "debian"
 	RHEL    Distro = "rhel"
+	SUSE    Distro = "suse"
 	INVALID Distro = "invalid"
 )
 

@@ -1,0 +1,28 @@
+Loading repository data...
+Reading installed packages...
+
+The following matches in issue numbers have been found:
+
+Issue | No.            | Patch                                                 | Category | Severity  | Interactive | Status | Summary
+------+----------------+-------------------------------------------------------+----------+-----------+-------------+--------+-----------------------------------
+cve   | CVE-2024-6239  | SUSE-SLE-Module-Basesystem-15-SP5-2024-2332           | security | low       | ---         | needed | Security update for poppler
+cve   | CVE-2023-44488 | SUSE-SLE-Module-Basesystem-15-SP5-2024-2409           | security | important | ---         | needed | Security update for libvpx
+cve   | CVE-2023-6349  | SUSE-SLE-Module-Basesystem-15-SP5-2024-2409           | security | important | ---         | needed | Security update for libvpx
+cve   | CVE-2024-5197  | SUSE-SLE-Module-Basesystem-15-SP5-2024-2409           | security | important | ---         | needed | Security update for libvpx
+cve   | CVE-2023-52425 | SUSE-SLE-Module-Basesystem-15-SP5-2024-2479           | security | important | ---         | needed | Security update for python3
+cve   | CVE-2024-0397  | SUSE-SLE-Module-Basesystem-15-SP5-2024-2479           | security | important | ---         | needed | Security update for python3
+cve   | CVE-2024-0450  | SUSE-SLE-Module-Basesystem-15-SP5-2024-2479           | security | important | ---         | needed | Security update for python3
+cve   | CVE-2024-4032  | SUSE-SLE-Module-Basesystem-15-SP5-2024-2479           | security | important | ---         | needed | Security update for python3
+cve   | CVE-2024-5688  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-5690  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-5691  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-5692  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-5693  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-5696  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-5700  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-5702  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-6600  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-6601  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-6602  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-6603  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox
+cve   | CVE-2024-6604  | SUSE-SLE-Module-Desktop-Applications-15-SP5-2024-2399 | security | important | ---         | needed | Security update for MozillaFirefox

@@ -26,6 +26,8 @@ func GetCurrentOS() constants.Distro {
 		return constants.DEBIAN
 	case "centos", "rhel":
 		return constants.RHEL
+	case "sles":
+		return constants.SUSE
 	default:
 		logger.GetLogger().Fatal(context.Background(), "fatal unsupported linux distribution", nil, map[string]any{"distribution": distribution})
 	}

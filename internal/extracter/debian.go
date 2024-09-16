@@ -11,6 +11,8 @@ import (
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 )
 
+var _ Extracter = &debianExtractor{}
+
 type debianExtractor struct {
 	instRegex *regexp.Regexp
 }
@@ -93,7 +95,7 @@ func (d *debianExtractor) ExtractAppWithSecurityUpdate(text string) []model.AppC
 	return appCVEs
 }
 
-func newDebianExtractor() Extracter {
+func newDebianExtractor() *debianExtractor {
 	return &debianExtractor{
 		instRegex: regexp.MustCompile(`Inst (\S+)`),
 	}
