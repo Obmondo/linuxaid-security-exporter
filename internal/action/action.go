@@ -20,6 +20,8 @@ func NewAction(actionType constants.Distro) Action {
 		return newDebianAction()
 	case constants.RHEL:
 		return newRhelAction()
+	case constants.SUSE:
+		return newSuse()
 	}
 	return nil
 }

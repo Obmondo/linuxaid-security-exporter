@@ -19,6 +19,8 @@ func NewExtractor(actionType constants.Distro) Extracter {
 		return newDebianExtractor()
 	case constants.RHEL:
 		return newRhelExtactor()
+	case constants.SUSE:
+		return newSuseExtractor()
 	}
 	return nil
 }

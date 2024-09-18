@@ -12,6 +12,7 @@ import (
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/extracter"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/metrics"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/model"
+	"gitea.obmondo.com/EnableIT/security-exporter/utils/distro"
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 	"github.com/go-co-op/gocron/v2"
 )
@@ -63,7 +64,6 @@ func (s *service) collectCVEMetrics(ctx context.Context) {
 		logger.GetLogger().Error(ctx, "failed to find security update", err, nil)
 		return
 	}
-	metrics.SetNumberOfAppsWithSecurityUpdate(len(output))
 
 	// fills  appCVE slice with current versison and CVEIds
 	apps := s.getAllParamsRelatedToAppWithSecurityUpdate(ctx, output)
@@ -86,6 +86,12 @@ func (s *service) collectCVEMetrics(ctx context.Context) {
 
 func (s *service) getAllParamsRelatedToAppWithSecurityUpdate(ctx context.Context, output string) []model.AppCVE {
 	apps := s.extractorService.ExtractAppWithSecurityUpdate(output)
+
+	metrics.SetNumberOfAppsWithSecurityUpdate(len(apps))
+	if distro.GetCurrentOS() == constants.SUSE {
+		return apps
+	}
+
 	for i, app := range apps {
 		logger.GetLogger().Info(ctx, "starting to process app", map[string]any{"index": i, "app-name": app.Name})
 		version, err := s.actionService.GetCurrentPackageVersion(app.Name)
