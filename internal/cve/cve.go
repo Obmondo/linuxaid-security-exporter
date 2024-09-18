@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"gitea.obmondo.com/EnableIT/security-exporter/config"
@@ -15,7 +16,7 @@ import (
 )
 
 type CVEService interface {
-	FillAppsDataWithCVEScore(cveIDs ...model.AppCVE) ([]model.AppCVE, []error)
+	FillAppsDataWithCVEScore(cveIDs ...model.AppCVE) ([]model.AppCVE, bool, []error)
 }
 
 type service struct {
@@ -25,23 +26,27 @@ type service struct {
 }
 
 // FillAppsDataWithCVEScore implements CVEService.
-func (s *service) FillAppsDataWithCVEScore(appCVEs ...model.AppCVE) ([]model.AppCVE, []error) {
+func (s *service) FillAppsDataWithCVEScore(appCVEs ...model.AppCVE) ([]model.AppCVE, bool, []error) {
 	logger.GetLogger().Info(context.Background(), "fetching cve scores for packages", nil)
 	s.sustainableRate = time.NewTicker(s.cfg.GetCVERequestInterval())
 	defer s.sustainableRate.Stop()
 
 	errs := make([]error, 0, len(appCVEs))
+	fetchForAllAppsFailed := true
 	for i, appCVE := range appCVEs {
-		cves, errList := s.processAppCVE(appCVE)
+		cves, failedToFetchForAllCVEIDs, errList := s.processAppCVE(appCVE)
 		if len(errList) != 0 {
-			errs = append(errs, errList...)
+			errs = append(errs, concatenateErrors(errList))
+		}
+		if !failedToFetchForAllCVEIDs {
+			fetchForAllAppsFailed = false
 		}
 		appCVEs[i] = cves
 	}
-	return appCVEs, errs
+	return appCVEs, fetchForAllAppsFailed, errs
 }
 
-func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, []error) {
+func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, bool, []error) {
 	errs := []error{}
 	cveIDWithNoScore := make(map[string]bool)
 	for _, cveID := range appCVE.CVEID {
@@ -66,11 +71,11 @@ func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, []error) {
 		}
 
 	}
-
-	return s.filterAppCVEID(appCVE, cveIDWithNoScore), errs
+	filterApp, failedToFetchAllCVEIDs := s.filterAppCVEID(appCVE, cveIDWithNoScore)
+	return filterApp, failedToFetchAllCVEIDs, errs
 }
 
-func (s *service) filterAppCVEID(app model.AppCVE, mp map[string]bool) model.AppCVE {
+func (s *service) filterAppCVEID(app model.AppCVE, mp map[string]bool) (model.AppCVE, bool) {
 	filteredCVEWithResponse := make([]string, 0, len(app.CVEID)-len(mp))
 	for _, cveID := range app.CVEID {
 		if mp[cveID] {
@@ -79,8 +84,9 @@ func (s *service) filterAppCVEID(app model.AppCVE, mp map[string]bool) model.App
 		filteredCVEWithResponse = append(filteredCVEWithResponse, cveID)
 	}
 
+	failedToFetchForAllCVEIDs := len(filteredCVEWithResponse) == len(app.CVEID)
 	app.CVEID = filteredCVEWithResponse
-	return app
+	return app, failedToFetchForAllCVEIDs
 }
 
 func (s *service) getCVEFromAPI(cveID string, appName string) (*model.NVDJsonRespone, error) {
@@ -99,8 +105,9 @@ func (s *service) getCVEFromAPI(cveID string, appName string) (*model.NVDJsonRes
 	}
 
 	if resp.StatusCode == http.StatusForbidden {
+		err = errors.New("rate limit reached")
 		logger.GetLogger().Error(context.Background(), "failed to get cve data due to ratelimit", err, map[string]any{"status code": resp.StatusCode, "app-name": appName})
-		return nil, errors.New("rate limit reached")
+		return nil, err
 	}
 
 	defer func() {
@@ -118,6 +125,28 @@ func (s *service) getCVEFromAPI(cveID string, appName string) (*model.NVDJsonRes
 	}
 
 	return &nvdApiResponse, nil
+}
+
+func concatenateErrors(errs []error) error {
+	if len(errs) == 0 {
+		return nil
+	}
+	errString := ""
+	errSuffix := "| "
+	for _, err := range errs {
+		if err == nil {
+			continue
+		}
+
+		errString += fmt.Sprintf("%v%s", err.Error(), errSuffix)
+	}
+
+	if len(errString) == 0 {
+		return nil
+	}
+
+	errString = strings.TrimSuffix(errString, errSuffix)
+	return errors.New(errString)
 }
 
 func NewCVEService(cfg config.Config) CVEService {
