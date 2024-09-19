@@ -43,5 +43,11 @@ func MockCVEAPIResponse(testCfg config.Config) []httpMockGetURL {
 			StatusCode:     http.StatusOK,
 			Response:       `{"resultsPerPage":1,"startIndex":0,"totalResults":1,"format":"NVD_CVE","version":"2.0","timestamp":"2024-03-19T07:26:43.663","vulnerabilities":[{"cve":{"id":"CVE-2024-0853","sourceIdentifier":"2499f714-1537-4658-8207-48ae4bb9eae9","published":"2024-02-03T14:15:50.850","lastModified":"2024-03-07T17:15:12.657","vulnStatus":"Modified","descriptions":[{"lang":"en","value":"foo inadvertently kept the SSL session ID for connections in its cache even when the verify status (*OCSP stapling*) test failed. A subsequent transfer to\nthe same hostname could then succeed if the session ID cache was still fresh, which then skipped the verify status check."},{"lang":"es","value":"foo inadvertidamente mantuvo el ID de sesión SSL para las conexiones en su caché incluso cuando falló la prueba de verificación del estado (*OCSP stapling*). Una transferencia posterior al mismo nombre de host podría tener éxito si la caché de ID de sesión aún estuviera actualizada, lo que luego omitiría la verificación de estado de verificación."}],"metrics":{"cvssMetricV31":[]},"weaknesses":[{"source":"nvd@nist.gov","type":"Primary","description":[{"lang":"en","value":"CWE-295"}]}],"configurations":[{"nodes":[{"operator":"OR","negate":false,"cpeMatch":[{"vulnerable":true,"criteria":"cpe:2.3:a:haxx:foo:8.5.0:*:*:*:*:*:*:*","matchCriteriaId":"B3F10DBE-EB62-4DCA-A46B-651A39A3502B"}]}]}],"references":[{"url":"https:\/\/foo.se\/docs\/CVE-2024-0853.html","source":"2499f714-1537-4658-8207-48ae4bb9eae9","tags":["Vendor Advisory"]},{"url":"https:\/\/foo.se\/docs\/CVE-2024-0853.json","source":"2499f714-1537-4658-8207-48ae4bb9eae9","tags":["Vendor Advisory"]},{"url":"https:\/\/hackerone.com\/reports\/2298922","source":"2499f714-1537-4658-8207-48ae4bb9eae9","tags":["Exploit","Issue Tracking"]},{"url":"https:\/\/security.netapp.com\/advisory\/ntap-20240307-0004\/","source":"2499f714-1537-4658-8207-48ae4bb9eae9"}]}}]}`,
 		},
+		{
+			URL:            testCfg.GetCVEAPI(),
+			Path:           testCfg.GetCVEAPIEndpoint(),
+			QueryParamsMap: map[string]string{"cveID": "CVE-2024-0857"},
+			StatusCode:     http.StatusForbidden,
+		},
 	}
 }

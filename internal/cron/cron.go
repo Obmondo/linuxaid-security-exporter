@@ -72,8 +72,8 @@ func (s *service) collectCVEMetrics(ctx context.Context) {
 		return
 	}
 
-	apps, errs := s.cveService.FillAppsDataWithCVEScore(apps...)
-	if len(errs) == len(apps) {
+	apps, failedToFetchForAllApps, errs := s.cveService.FillAppsDataWithCVEScore(apps...)
+	if failedToFetchForAllApps {
 		logger.GetLogger().Error(ctx, "errors occured while fetching cve score of all apps", errFailedToGetCVEScores, map[string]any{"errors": errs})
 		return
 	}
