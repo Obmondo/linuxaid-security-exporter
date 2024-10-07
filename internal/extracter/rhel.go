@@ -17,7 +17,6 @@ var _ Extracter = &rhelExtractor{}
 type rhelExtractor struct {
 	versionMap map[string]bool
 	appRegex   *regexp.Regexp
-	ignoreArow *regexp.Regexp
 }
 
 func fillVersionMap() map[string]bool {
@@ -88,33 +87,38 @@ func (r *rhelExtractor) ExtractAppWithSecurityUpdate(text string) []model.AppCVE
 	logger.GetLogger().Info(context.Background(), logMsgExtractAppsWithSecurityUpdate, nil)
 
 	lines := strings.Split(text, "\n")
-	processedText := ""
-	for i, line := range lines {
-		if i >= 3 && !r.ignoreArow.MatchString(line) {
-			processedText += line + "\n"
+	var processedLines []string
+
+	for _, line := range lines {
+		if strings.TrimSpace(line) != "" {
+			processedLines = append(processedLines, line)
 		}
 	}
 
+	processedText := strings.Join(processedLines, "\n")
 	pkgs := r.appRegex.FindAllStringSubmatch(processedText, -1)
 	if len(pkgs) == 0 {
 		return nil
 	}
 
 	appCVEs := make([]model.AppCVE, 0, len(pkgs))
+	uniqueApps := make(map[string]bool)
 	for _, pkg := range pkgs {
 		name := strings.TrimSpace(pkg[1])
-		lastHyphenIndex := r.findHyphenIndexs(name)
-		if lastHyphenIndex != -1 {
-
+		if _, ok := uniqueApps[name]; ok {
+			continue
+		}
+		if lastHyphenIndex := r.findHyphenIndexs(name); lastHyphenIndex != -1 {
 			appCVEs = append(appCVEs, model.AppCVE{
 				Name: name[:lastHyphenIndex],
 			})
-			continue
+		} else {
+			appCVEs = append(appCVEs, model.AppCVE{
+				Name: name,
+			})
 		}
 
-		appCVEs = append(appCVEs, model.AppCVE{
-			Name: name,
-		})
+		uniqueApps[name] = true
 	}
 
 	return appCVEs
@@ -137,10 +141,10 @@ func (r *rhelExtractor) findHyphenIndexs(str string) int {
 
 	return -1
 }
+
 func newRhelExtactor() *rhelExtractor {
 	return &rhelExtractor{
 		versionMap: fillVersionMap(),
-		appRegex:   regexp.MustCompile(`(\S+)\.(?:x86_64|noarch|i686)\b`),
-		ignoreArow: regexp.MustCompile(`^\s*-->.*$`),
+		appRegex:   regexp.MustCompile(`(?:\d+:)?(\S+)\.(?:x86_64|noarch|i686)\b`),
 	}
 }

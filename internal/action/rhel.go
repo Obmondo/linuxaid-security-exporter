@@ -2,6 +2,7 @@ package action
 
 import (
 	"context"
+	"errors"
 	"os/exec"
 	"strings"
 
@@ -35,6 +36,9 @@ func (*rhel) GetChangelogs(packageName string) (string, error) {
 			logger.GetLogger().Error(context.Background(), "faield to get changelog", err, map[string]any{"output": string(output), "stderr": exitErr.Stderr})
 		}
 		return "", err
+	}
+	if strings.Contains(string(output), "is not installed") {
+		return "", errors.New("this package is not installed")
 	}
 	return string(output), nil
 }

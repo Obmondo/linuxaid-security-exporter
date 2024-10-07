@@ -1184,9 +1184,51 @@ Loading mirror speeds from cached hostfile
  --> blas-3.4.2-8.el7.i686 from base excluded (updateinfo)
  --> 2:rmt-1.5.2-13.el7.x86_64 from base excluded (updateinfo)
  perl-Clipboard.noarch                      0.29-1.el7                       epel`,
+	`Loaded plugins: fastestmirror, versionlock
+Loading mirror speeds from cached hostfile
+ --> libappindicator-devel-12.10.0-13.el7.i686 from base excluded (updateinfo)
+ --> libappindicator-devel-12.10.0-13.el7.x86_64 from base excluded (updateinfo)
+ --> libao-1.1.0-8.el7.i686 from base excluded (updateinfo)
+ --> libao-1.1.0-8.el7.x86_64 from base excluded (updateinfo)
+ --> libaio-devel-0.3.109-13.el7.i686 from base excluded (updateinfo)
+ --> libaio-devel-0.3.109-13.el7.x86_64 from base excluded (updateinfo)
+ --> libappindicator-12.10.0-13.el7.i686 from base excluded (updateinfo)
+ --> libappindicator-12.10.0-13.el7.x86_64 from base excluded (updateinfo)
+ --> libao-devel-1.1.0-8.el7.i686 from base excluded (updateinfo)
+ --> libao-devel-1.1.0-8.el7.x86_64 from base excluded (updateinfo)
+ --> rhythmbox-3.4.2-2.el7.x86_64 from base excluded (updateinfo)`,
 }
 
-var expectedRHELOutForExtractSecurityUpdateApps = [][]string{{"NetworkManager", "NetworkManager-config-server", "NetworkManager-wwan", "bpftool", "buildah", "containernetworking-plugins"}, {"perl-Clipboard"}}
+var expectedRHELOutForExtractSecurityUpdateApps = [][]string{
+	{
+		"NetworkManager",
+		"NetworkManager-config-server",
+		"NetworkManager-wwan",
+		"bpftool",
+		"buildah",
+		"containernetworking-plugins",
+	},
+	{
+		"libappindicator-devel",
+		"libao",
+		"libaio-devel",
+		"libappindicator",
+		"libao-devel",
+		"rhythmbox",
+		"rhythmbox-devel",
+		"poppler-devel",
+		"blas",
+		"rmt",
+		"perl-Clipboard",
+	},
+	{
+		"libappindicator-devel",
+		"libao",
+		"libaio-devel",
+		"libappindicator",
+		"libao-devel",
+		"rhythmbox"},
+}
 
 func TestExtractCVENumberForGivenChangelog(t *testing.T) {
 	assert := require.New(t)
