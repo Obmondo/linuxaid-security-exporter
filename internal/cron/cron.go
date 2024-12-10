@@ -32,12 +32,12 @@ func Start(cfg config.Config, distro constants.Distro) (*service, error) {
 
 	switch {
 	case cfg.GetRunType() == constants.RunTypeTest:
-		_, err := service.scheduler.NewJob(gocron.OneTimeJob(gocron.OneTimeJobStartImmediately()), gocron.NewTask(service.collectCVEMetrics, ctx))
+		_, err := service.scheduler.NewJob(gocron.OneTimeJob(gocron.OneTimeJobStartImmediately()), gocron.NewTask(service.collectCVEAndKernelUpdateMetrics, ctx))
 		if err != nil {
 			return nil, err
 		}
 	default:
-		if _, err := service.scheduler.NewJob(gocron.CronJob(cfg.GetCVECronExpression(), false), gocron.NewTask(service.collectCVEMetrics, ctx), gocron.WithSingletonMode(gocron.LimitModeReschedule)); err != nil {
+		if _, err := service.scheduler.NewJob(gocron.CronJob(cfg.GetCVECronExpression(), false), gocron.NewTask(service.collectCVEAndKernelUpdateMetrics, ctx), gocron.WithSingletonMode(gocron.LimitModeReschedule)); err != nil {
 			return nil, err
 		}
 	}
@@ -57,13 +57,15 @@ func (s *service) Stop() {
 	logger.GetLogger().Info(context.Background(), "cron stopped successfully", nil)
 }
 
-func (s *service) collectCVEMetrics(ctx context.Context) {
-
-	output, err := s.actionService.CheckSecurityForSecurityUpdate()
+func (s *service) collectCVEAndKernelUpdateMetrics(ctx context.Context) {
+	output, isKernelUpdate, err := s.actionService.GetPackageUpdateList()
 	if err != nil {
 		logger.GetLogger().Error(ctx, "failed to find security update", err, nil)
 		return
 	}
+
+	// update kernel update metrics
+	metrics.SetKernelUpdateMetricForServer(isKernelUpdate)
 
 	// fills  appCVE slice with current versison and CVEIds
 	apps := s.getAllParamsRelatedToAppWithSecurityUpdate(ctx, output)
