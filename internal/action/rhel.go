@@ -11,19 +11,19 @@ import (
 
 type rhel struct{}
 
-// CheckSecurityForSecurityUpdate implements Action.
-func (*rhel) CheckSecurityForSecurityUpdate() (string, error) {
+// GetPackageUpdateList implements Action.
+func (*rhel) GetPackageUpdateList() (string, bool, error) {
 	logger.GetLogger().Info(context.Background(), logMsgCheckForSecurityUpdate, nil)
 	cmd := exec.Command("yum", "--security", "check-update")
 	output, err := cmd.Output()
 	if err != nil && !strings.Contains(err.Error(), "exit status 100") {
 		if exitErr, ok := err.(*exec.ExitError); ok {
-			logger.GetLogger().Error(context.Background(), "failed to get security update via YUM", err, map[string]any{"output": string(output), "stderr": exitErr.Stderr})
+			logger.GetLogger().Error(context.Background(), "failed to get apps with update list including security via YUM", err, map[string]any{"output": string(output), "stderr": exitErr.Stderr})
 		}
-		return "", err
+		return "", false, err
 	}
 
-	return string(output), nil
+	return string(output), strings.Contains(string(output), "kernel-core"), nil
 }
 
 // GetChangelogs implements Action.

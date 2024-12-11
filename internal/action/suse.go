@@ -3,6 +3,7 @@ package action
 import (
 	"context"
 	"os/exec"
+	"strings"
 
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 )
@@ -14,19 +15,28 @@ func newSuse() *suse {
 type suse struct {
 }
 
-// CheckSecurityForSecurityUpdate implements Action.
-func (s *suse) CheckSecurityForSecurityUpdate() (string, error) {
+// GetPackageUpdateList implements Action.
+func (s *suse) GetPackageUpdateList() (string, bool, error) {
 	logger.GetLogger().Info(context.Background(), logMsgCheckForSecurityUpdate, nil)
 
-	output, err := exec.Command("zypper", "list-patches", "--cve").Output()
+	cveOutput, err := exec.Command("zypper", "list-patches", "--cve").Output()
+
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			logger.GetLogger().Error(context.Background(), "failed to get security update", exitErr, map[string]any{"stderr": string(exitErr.Stderr)})
 		}
-		return "", err
+		return "", false, err
 	}
 
-	return string(output), nil
+	listUpdatesOutput, err := exec.Command("zypper", "list-updates").Output()
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			logger.GetLogger().Error(context.Background(), "failed to run zyper list-updates command", exitErr, map[string]any{"stderr": string(exitErr.Stderr)})
+		}
+		return "", false, err
+	}
+
+	return string(cveOutput), strings.Contains(string(listUpdatesOutput), "kernel-default"), nil
 
 }
 

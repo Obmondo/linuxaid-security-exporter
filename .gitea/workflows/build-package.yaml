@@ -20,9 +20,11 @@ jobs:
       - name: Build upstream packages
         run: |
             make packages
+        env:
+          VERSION: ${{ gitea.ref_name }}
 
       - name: Upload to repo servers
-        if: github.event_name == 'push' && contains(github.ref, 'refs/heads/main')
+        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         env:
           PUBLIC_PATH: /vol0/data/packagesign01_var/var/lib/packagesign/repos/incoming/public/
           USERNAME: ${{ secrets.PACKAGESIGN_USER }}

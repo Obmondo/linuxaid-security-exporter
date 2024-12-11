@@ -31,8 +31,14 @@ var kernelCVEDetails = prometheus.NewGaugeVec(
 	constants.CveDetailsLabels,
 )
 
+var kernelUpdates = prometheus.NewGauge(
+	prometheus.GaugeOpts{
+		Name: "kernel_update_available",
+		Help: "shows whether a server has kernel updates",
+	})
+
 func RegisterMetrics() {
-	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails, numberOfAppsWithSecurityUpdate)
+	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails, numberOfAppsWithSecurityUpdate, kernelUpdates)
 }
 
 func FilterAppsWithNoCVEScore(apps []model.AppCVE) []model.AppCVE {
@@ -66,4 +72,13 @@ func SetCVELabelsValue(appCVEs []model.AppCVE) {
 
 func SetNumberOfAppsWithSecurityUpdate(count int) {
 	numberOfAppsWithSecurityUpdate.Set(float64(count))
+}
+
+func SetKernelUpdateMetricForServer(required bool) {
+	logger.GetLogger().Info(context.Background(), "setting kernel updates metric", nil)
+	if !required {
+		kernelUpdates.Set(0)
+		return
+	}
+	kernelUpdates.Set(1)
 }
