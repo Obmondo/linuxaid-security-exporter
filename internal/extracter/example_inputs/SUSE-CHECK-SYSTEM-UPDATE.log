@@ -1,0 +1,47 @@
+Refreshing service 'Basesystem_Module_15_SP6_x86_64'.
+Refreshing service 'Containers_Module_15_SP6_x86_64'.
+Refreshing service 'Desktop_Applications_Module_15_SP6_x86_64'.
+Refreshing service 'Legacy_Module_15_SP6_x86_64'.
+Refreshing service 'SUSE_Linux_Enterprise_Server_15_SP6_x86_64'.
+Refreshing service 'SUSE_Package_Hub_15_SP6_x86_64'.
+Refreshing service 'Server_Applications_Module_15_SP6_x86_64'.
+Loading repository data...
+Reading installed packages...
+S  | Repository                                      | Name                               | Current Version              | Available Version             | Arch
+---+-------------------------------------------------+------------------------------------+------------------------------+-------------------------------+-------
+v  | SLE-Module-Basesystem15-SP6-Updates             | cups-filters                       | 1.25.0-150200.3.16.1         | 1.25.0-150200.3.19.2          | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | device-mapper                      | 2.03.22_1.02.196-150600.1.3  | 2.03.22_1.02.196-150600.3.3.2 | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libatomic1                         | 14.2.0+git10526-150000.1.3.3 | 14.2.0+git10526-150000.1.6.1  | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libdevmapper-event1_03             | 2.03.22_1.02.196-150600.1.3  | 2.03.22_1.02.196-150600.3.3.2 | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libdevmapper1_03                   | 2.03.22_1.02.196-150600.1.3  | 2.03.22_1.02.196-150600.3.3.2 | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libgcc_s1                          | 14.2.0+git10526-150000.1.3.3 | 14.2.0+git10526-150000.1.6.1  | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libgnutls30                        | 3.8.3-150600.2.15            | 3.8.3-150600.4.3.1            | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libgomp1                           | 14.2.0+git10526-150000.1.3.3 | 14.2.0+git10526-150000.1.6.1  | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libitm1                            | 14.2.0+git10526-150000.1.3.3 | 14.2.0+git10526-150000.1.6.1  | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | liblsan0                           | 14.2.0+git10526-150000.1.3.3 | 14.2.0+git10526-150000.1.6.1  | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | liblvm2cmd2_03                     | 2.03.22-150600.1.6           | 2.03.22-150600.3.3.2          | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libobjc4                           | 14.2.0+git10526-150000.1.3.3 | 14.2.0+git10526-150000.1.6.1  | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libopenssl1_1                      | 1.1.1w-150600.5.6.1          | 1.1.1w-150600.5.9.1           | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libprotobuf-lite25_1_0             | 25.1-150600.16.7.1           | 25.1-150600.16.10.1           | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libpython3_6m1_0                   | 3.6.15-150300.10.72.1        | 3.6.15-150300.10.75.1         | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libruby2_5-2_5                     | 2.5.9-150000.4.29.1          | 2.5.9-150000.4.32.1           | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | libstdc++6                         | 14.2.0+git10526-150000.1.3.3 | 14.2.0+git10526-150000.1.6.1  | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | login_defs                         | 4.8.1-150600.17.6.1          | 4.8.1-150600.17.9.1           | noarch
+v  | SLE-Module-Basesystem15-SP6-Updates             | lvm2                               | 2.03.22-150600.1.6           | 2.03.22-150600.3.3.2          | x86_64
+v  | SLE-Module-Desktop-Applications15-SP6-Updates   | MozillaFirefox                     | 128.3.1-150200.152.155.1     | 128.4.0-150200.152.158.1      | x86_64
+v  | SLE-Module-Desktop-Applications15-SP6-Updates   | MozillaFirefox-translations-common | 128.3.1-150200.152.155.1     | 128.4.0-150200.152.158.1      | x86_64
+v  | SLE-Module-Legacy15-SP6-Updates                 | openssl-1_1                        | 1.1.1w-150600.5.6.1          | 1.1.1w-150600.5.9.1           | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | python3                            | 3.6.15-150300.10.72.1        | 3.6.15-150300.10.75.1         | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | python3-base                       | 3.6.15-150300.10.72.1        | 3.6.15-150300.10.75.1         | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | python3-curses                     | 3.6.15-150300.10.72.1        | 3.6.15-150300.10.75.1         | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | python3-dbm                        | 3.6.15-150300.10.72.1        | 3.6.15-150300.10.75.1         | x86_64
+v  | SLE-Module-Packagehub-Subpackages15-SP6-Updates | python3-protobuf                   | 3.9.2-150200.4.21.1          | 3.9.2-150200.4.24.1           | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | ruby2.5                            | 2.5.9-150000.4.29.1          | 2.5.9-150000.4.32.1           | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | ruby2.5-stdlib                     | 2.5.9-150000.4.29.1          | 2.5.9-150000.4.32.1           | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | shadow                             | 4.8.1-150600.17.6.1          | 4.8.1-150600.17.9.1           | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | shim                               | 15.8-150300.4.20.2           | 15.8-150300.4.23.1            | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | suse-build-key                     | 12.0-150000.8.52.3           | 12.0-150000.8.55.1            | noarch
+v  | SLE-Module-Basesystem15-SP6-Updates             | wget                               | 1.20.3-150600.19.3.1         | 1.20.3-150600.19.6.2          | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | xorg-x11-server                    | 21.1.11-150600.3.2           | 21.1.11-150600.5.3.1          | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | xorg-x11-server-extra              | 21.1.11-150600.3.2           | 21.1.11-150600.5.3.1          | x86_64
+v  | SLE-Module-Basesystem15-SP6-Updates             | xorg-x11-server-Xvfb               | 21.1.11-150600.3.2           | 21.1.11-150600.5.3.1          | x86_64

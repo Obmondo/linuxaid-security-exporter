@@ -1,0 +1,121 @@
+Updating Subscription Management repositories.
+Last metadata expiration check: 0:04:34 ago on Wednesday 06 November 2024 07:58:35 AM GMT.
+
+bpftool.x86_64                                                 4.18.0-553.27.1.el8_10                                                   rhel-8-for-x86_64-baseos-rpms    
+buildah.x86_64                                                 2:1.33.10-1.module+el8.10.0+22397+e3c95ba6                               rhel-8-for-x86_64-appstream-rpms 
+chrony.x86_64                                                  4.5-2.el8_10                                                             rhel-8-for-x86_64-baseos-rpms    
+cockpit-podman.noarch                                          84.1-1.module+el8.10.0+22397+e3c95ba6                                    rhel-8-for-x86_64-appstream-rpms 
+conmon.x86_64                                                  3:2.1.10-1.module+el8.10.0+22397+e3c95ba6                                rhel-8-for-x86_64-appstream-rpms 
+container-selinux.noarch                                       2:2.229.0-2.module+el8.10.0+22397+e3c95ba6                               rhel-8-for-x86_64-appstream-rpms 
+containernetworking-plugins.x86_64                             1:1.4.0-5.module+el8.10.0+22397+e3c95ba6                                 rhel-8-for-x86_64-appstream-rpms 
+containers-common.x86_64                                       2:1-82.module+el8.10.0+22397+e3c95ba6                                    rhel-8-for-x86_64-appstream-rpms 
+criu.x86_64                                                    3.18-5.module+el8.10.0+22397+e3c95ba6                                    rhel-8-for-x86_64-appstream-rpms 
+criu-libs.x86_64                                               3.18-5.module+el8.10.0+22397+e3c95ba6                                    rhel-8-for-x86_64-appstream-rpms 
+crun.x86_64                                                    1.14.3-2.module+el8.10.0+22397+e3c95ba6                                  rhel-8-for-x86_64-appstream-rpms 
+cups.x86_64                                                    1:2.2.6-61.el8_10                                                        rhel-8-for-x86_64-appstream-rpms 
+cups-client.x86_64                                             1:2.2.6-61.el8_10                                                        rhel-8-for-x86_64-appstream-rpms 
+cups-filesystem.noarch                                         1:2.2.6-61.el8_10                                                        rhel-8-for-x86_64-appstream-rpms 
+cups-ipptool.x86_64                                            1:2.2.6-61.el8_10                                                        rhel-8-for-x86_64-appstream-rpms 
+cups-libs.x86_64                                               1:2.2.6-61.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+freerdp-libs.x86_64                                            2:2.11.7-1.el8_10                                                        rhel-8-for-x86_64-appstream-rpms 
+fuse-overlayfs.x86_64                                          1.13-1.module+el8.10.0+22397+e3c95ba6                                    rhel-8-for-x86_64-appstream-rpms 
+ghostscript.x86_64                                             9.27-15.el8_10                                                           rhel-8-for-x86_64-appstream-rpms 
+glib2.x86_64                                                   2.56.4-165.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+grub2-common.noarch                                            1:2.02-158.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+grub2-efi-x64.x86_64                                           1:2.02-158.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+grub2-tools.x86_64                                             1:2.02-158.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+grub2-tools-extra.x86_64                                       1:2.02-158.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+grub2-tools-minimal.x86_64                                     1:2.02-158.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+gvfs.x86_64                                                    1.36.2-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+gvfs-afc.x86_64                                                1.36.2-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+gvfs-afp.x86_64                                                1.36.2-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+gvfs-archive.x86_64                                            1.36.2-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+gvfs-client.x86_64                                             1.36.2-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+gvfs-fuse.x86_64                                               1.36.2-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+gvfs-goa.x86_64                                                1.36.2-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+gvfs-gphoto2.x86_64                                            1.36.2-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+gvfs-mtp.x86_64                                                1.36.2-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+gvfs-smb.x86_64                                                1.36.2-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+iwl100-firmware.noarch                                         39.31.5.1-125.el8_10.1                                                   rhel-8-for-x86_64-baseos-rpms    
+iwl1000-firmware.noarch                                        1:39.31.5.1-125.el8_10.1                                                 rhel-8-for-x86_64-baseos-rpms    
+iwl105-firmware.noarch                                         18.168.6.1-125.el8_10.1                                                  rhel-8-for-x86_64-baseos-rpms    
+iwl135-firmware.noarch                                         18.168.6.1-125.el8_10.1                                                  rhel-8-for-x86_64-baseos-rpms    
+iwl2000-firmware.noarch                                        18.168.6.1-125.el8_10.1                                                  rhel-8-for-x86_64-baseos-rpms    
+iwl2030-firmware.noarch                                        18.168.6.1-125.el8_10.1                                                  rhel-8-for-x86_64-baseos-rpms    
+iwl3160-firmware.noarch                                        1:25.30.13.0-125.el8_10.1                                                rhel-8-for-x86_64-baseos-rpms    
+iwl5000-firmware.noarch                                        8.83.5.1_1-125.el8_10.1                                                  rhel-8-for-x86_64-baseos-rpms    
+iwl5150-firmware.noarch                                        8.24.2.2-125.el8_10.1                                                    rhel-8-for-x86_64-baseos-rpms    
+iwl6000-firmware.noarch                                        9.221.4.1-125.el8_10.1                                                   rhel-8-for-x86_64-baseos-rpms    
+iwl6000g2a-firmware.noarch                                     18.168.6.1-125.el8_10.1                                                  rhel-8-for-x86_64-baseos-rpms    
+iwl6000g2b-firmware.noarch                                     18.168.6.1-125.el8_10.1                                                  rhel-8-for-x86_64-baseos-rpms    
+iwl6050-firmware.noarch                                        41.28.5.1-125.el8_10.1                                                   rhel-8-for-x86_64-baseos-rpms    
+iwl7260-firmware.noarch                                        1:25.30.13.0-125.el8_10.1                                                rhel-8-for-x86_64-baseos-rpms    
+kernel.x86_64                                                  4.18.0-553.27.1.el8_10                                                   rhel-8-for-x86_64-baseos-rpms    
+kernel-core.x86_64                                             4.18.0-553.27.1.el8_10                                                   rhel-8-for-x86_64-baseos-rpms    
+kernel-headers.x86_64                                          4.18.0-553.27.1.el8_10                                                   rhel-8-for-x86_64-baseos-rpms    
+kernel-modules.x86_64                                          4.18.0-553.27.1.el8_10                                                   rhel-8-for-x86_64-baseos-rpms    
+kernel-tools.x86_64                                            4.18.0-553.27.1.el8_10                                                   rhel-8-for-x86_64-baseos-rpms    
+kernel-tools-libs.x86_64                                       4.18.0-553.27.1.el8_10                                                   rhel-8-for-x86_64-baseos-rpms    
+krb5-devel.x86_64                                              1.18.2-30.el8_10                                                         rhel-8-for-x86_64-baseos-rpms    
+krb5-libs.x86_64                                               1.18.2-30.el8_10                                                         rhel-8-for-x86_64-baseos-rpms    
+libertas-usb8388-firmware.noarch                               2:20241014-125.git06bad2f1.el8_10                                        rhel-8-for-x86_64-baseos-rpms    
+libgs.x86_64                                                   9.27-15.el8_10                                                           rhel-8-for-x86_64-appstream-rpms 
+libkadm5.x86_64                                                1.18.2-30.el8_10                                                         rhel-8-for-x86_64-baseos-rpms    
+libproxy.x86_64                                                0.4.15-5.5.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+libslirp.x86_64                                                4.4.0-2.module+el8.10.0+22397+e3c95ba6                                   rhel-8-for-x86_64-appstream-rpms 
+libtiff.x86_64                                                 4.0.9-33.el8_10                                                          rhel-8-for-x86_64-appstream-rpms 
+libwinpr.x86_64                                                2:2.11.7-1.el8_10                                                        rhel-8-for-x86_64-appstream-rpms 
+linux-firmware.noarch                                          20241014-125.git06bad2f1.el8_10                                          rhel-8-for-x86_64-baseos-rpms    
+llvm-libs.x86_64                                               18.1.8-3.module+el8.10.0+22393+9aa055f1                                  rhel-8-for-x86_64-appstream-rpms 
+microcode_ctl.x86_64                                           4:20240910-1.el8_10                                                      rhel-8-for-x86_64-baseos-rpms    
+openldap.x86_64                                                2.4.46-20.el8_10                                                         rhel-8-for-x86_64-baseos-rpms    
+podman.x86_64                                                  4:4.9.4-15.module+el8.10.0+22397+e3c95ba6                                rhel-8-for-x86_64-appstream-rpms 
+podman-catatonit.x86_64                                        4:4.9.4-15.module+el8.10.0+22397+e3c95ba6                                rhel-8-for-x86_64-appstream-rpms 
+podman-gvproxy.x86_64                                          4:4.9.4-15.module+el8.10.0+22397+e3c95ba6                                rhel-8-for-x86_64-appstream-rpms 
+podman-plugins.x86_64                                          4:4.9.4-15.module+el8.10.0+22397+e3c95ba6                                rhel-8-for-x86_64-appstream-rpms 
+python3-perf.x86_64                                            4.18.0-553.27.1.el8_10                                                   rhel-8-for-x86_64-baseos-rpms    
+python3-podman.noarch                                          4.9.0-2.module+el8.10.0+22397+e3c95ba6                                   rhel-8-for-x86_64-appstream-rpms 
+qemu-guest-agent.x86_64                                        15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-img.x86_64                                                15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm.x86_64                                                15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-block-curl.x86_64                                     15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-block-gluster.x86_64                                  15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-block-iscsi.x86_64                                    15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-block-rbd.x86_64                                      15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-block-ssh.x86_64                                      15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-common.x86_64                                         15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-core.x86_64                                           15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-docs.x86_64                                           15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-hw-usbredir.x86_64                                    15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-ui-opengl.x86_64                                      15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+qemu-kvm-ui-spice.x86_64                                       15:6.2.0-53.module+el8.10.0+22375+ea5e8167.2                             rhel-8-for-x86_64-appstream-rpms 
+rsyslog.x86_64                                                 8.2102.0-15.el8_10.1                                                     rhel-8-for-x86_64-appstream-rpms 
+rsyslog-gnutls.x86_64                                          8.2102.0-15.el8_10.1                                                     rhel-8-for-x86_64-appstream-rpms 
+rsyslog-gssapi.x86_64                                          8.2102.0-15.el8_10.1                                                     rhel-8-for-x86_64-appstream-rpms 
+rsyslog-relp.x86_64                                            8.2102.0-15.el8_10.1                                                     rhel-8-for-x86_64-appstream-rpms 
+runc.x86_64                                                    1:1.1.12-5.module+el8.10.0+22397+e3c95ba6                                rhel-8-for-x86_64-appstream-rpms 
+skopeo.x86_64                                                  2:1.14.5-3.module+el8.10.0+22397+e3c95ba6                                rhel-8-for-x86_64-appstream-rpms 
+slirp4netns.x86_64                                             1.2.3-1.module+el8.10.0+22397+e3c95ba6                                   rhel-8-for-x86_64-appstream-rpms 
+toolbox.x86_64                                                 0.0.99.5-2.module+el8.10.0+22397+e3c95ba6                                rhel-8-for-x86_64-appstream-rpms 
+tzdata.noarch                                                  2024b-4.el8                                                              rhel-8-for-x86_64-baseos-rpms    
+udica.noarch                                                   0.2.6-21.module+el8.10.0+22397+e3c95ba6                                  rhel-8-for-x86_64-appstream-rpms 
+xmlrpc-c.x86_64                                                1.51.0-10.el8_10                                                         rhel-8-for-x86_64-baseos-rpms    
+xmlrpc-c-client.x86_64                                         1.51.0-10.el8_10                                                         rhel-8-for-x86_64-baseos-rpms    
+xorg-x11-server-Xorg.x86_64                                    1.20.11-25.el8_10                                                        rhel-8-for-x86_64-appstream-rpms 
+xorg-x11-server-Xwayland.x86_64                                21.1.3-17.el8_10                                                         rhel-8-for-x86_64-appstream-rpms 
+xorg-x11-server-common.x86_64                                  1.20.11-25.el8_10                                                        rhel-8-for-x86_64-appstream-rpms 
+Obsoleting Packages
+grub2-tools.x86_64                                             1:2.02-158.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+    grub2-tools.x86_64                                         1:2.02-156.el8                                                           @rhel-8-for-x86_64-baseos-rpms   
+grub2-tools-efi.x86_64                                         1:2.02-158.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+    grub2-tools.x86_64                                         1:2.02-156.el8                                                           @rhel-8-for-x86_64-baseos-rpms   
+grub2-tools-extra.x86_64                                       1:2.02-158.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+    grub2-tools.x86_64                                         1:2.02-156.el8                                                           @rhel-8-for-x86_64-baseos-rpms   
+grub2-tools-minimal.x86_64                                     1:2.02-158.el8_10                                                        rhel-8-for-x86_64-baseos-rpms    
+    grub2-tools.x86_64                                         1:2.02-156.el8                                                           @rhel-8-for-x86_64-baseos-rpms   
+kernel-headers.x86_64                                          4.18.0-553.27.1.el8_10                                                   rhel-8-for-x86_64-baseos-rpms    
+    kernel-headers.x86_64                                      4.18.0-553.22.1.el8_10                                                   @rhel-8-for-x86_64-baseos-rpms   
+llvm-compat-libs.i686                                          17.0.6-3.module+el8.10.0+22218+ed012fd4                                  rhel-8-for-x86_64-appstream-rpms 
+    llvm-libs.x86_64                                           17.0.6-3.module+el8.10.0+22125+1509a634                                  @rhel-8-for-x86_64-appstream-rpms
+llvm-compat-libs.x86_64                                        17.0.6-3.module+el8.10.0+22218+ed012fd4                                  rhel-8-for-x86_64-appstream-rpms 
+    llvm-libs.x86_64                                           17.0.6-3.module+el8.10.0+22125+1509a634                                  @rhel-8-for-x86_64-appstream-rpms

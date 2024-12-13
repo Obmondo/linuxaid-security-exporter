@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"gitea.obmondo.com/EnableIT/security-exporter/internal/constants"
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 )
 
@@ -15,37 +16,37 @@ func newSuse() *suse {
 type suse struct {
 }
 
-// GetPackageUpdateList implements Action.
-func (s *suse) GetPackageUpdateList() (string, bool, error) {
-	logger.GetLogger().Info(context.Background(), logMsgCheckForSecurityUpdate, nil)
+// CheckForUpdates implements Action.
+func (s *suse) GetPackageUpdateList(ctx context.Context, updateType constants.UpdateType) (string, bool, error) {
+	var (
+		output []byte
+		err    error
+	)
 
-	cveOutput, err := exec.Command("zypper", "list-patches", "--cve").Output()
-
-	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			logger.GetLogger().Error(context.Background(), "failed to get security update", exitErr, map[string]any{"stderr": string(exitErr.Stderr)})
+	switch updateType {
+	case constants.UpdateTypeSecurity:
+		output, err = exec.CommandContext(ctx, "zypper", "list-patches", "--cve").CombinedOutput()
+		if err != nil {
+			logger.GetLogger().Error(ctx, logMsgCheckForSecurityUpdates, err, map[string]any{"output": string(output)})
+			return "", false, err
 		}
-		return "", false, err
+
+	case constants.UpdateTypeALL:
+		output, err = exec.CommandContext(ctx, "zypper", "list-updates").CombinedOutput()
+		if err != nil {
+			logger.GetLogger().Error(ctx, logMsgFailedToGetSystemUpdates, err, map[string]any{"output": string(output)})
+			return "", false, err
+		}
+
 	}
 
-	listUpdatesOutput, err := exec.Command("zypper", "list-updates").Output()
-	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			logger.GetLogger().Error(context.Background(), "failed to run zyper list-updates command", exitErr, map[string]any{"stderr": string(exitErr.Stderr)})
-		}
-		return "", false, err
-	}
-
-	return string(cveOutput), strings.Contains(string(listUpdatesOutput), "kernel-default"), nil
-
+	return string(output), strings.Contains(string(output), "kernel-default"), nil
 }
 
-// GetChangelogs implements Action.
-func (s *suse) GetChangelogs(packageName string) (string, error) {
+func (s *suse) GetChangelogs(ctx context.Context, packageName string) (string, error) {
 	return "", nil
 }
 
-// GetCurrentPackageVersion implements Action.
-func (s *suse) GetCurrentPackageVersion(packageName string) (string, error) {
+func (s *suse) GetCurrentPackageVersion(ctx context.Context, packageName string) (string, error) {
 	return "", nil
 }

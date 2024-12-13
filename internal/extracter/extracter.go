@@ -9,6 +9,7 @@ var logMsgExtractCVENumber = "extracting cve numbers from changelog"
 var logMsgExtractAppsWithSecurityUpdate = "finding apps in list"
 
 type Extracter interface {
+	NumberOfAppsInSystemUpdate(string) int
 	ExtractAppWithSecurityUpdate(string) []model.AppCVE
 	ExtractCVENumberForGivenChangelog(string, string) []string
 }

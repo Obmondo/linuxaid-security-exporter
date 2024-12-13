@@ -1,6 +1,7 @@
 package cve
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -26,7 +27,7 @@ func TestCVE(t *testing.T) {
 		gock.New(req.URL).Get(req.Path).Persist().MatchParams(req.QueryParamsMap).Reply(req.StatusCode).JSON(req.Response)
 	}
 	for _, mockData := range prepareMockDataForTestCVE() {
-		data, failedToGetCVEIDsScoreForAllApps, errs := cve.FillAppsDataWithCVEScore(mockData.mockData...)
+		data, failedToGetCVEIDsScoreForAllApps, errs := cve.FillAppsDataWithCVEScore(context.Background(), mockData.mockData...)
 		assert.Equal(mockData.numberOfErrs, len(errs))
 		assert.Equal(mockData.failedToGetCVEIDsScoreForAllApps, failedToGetCVEIDsScoreForAllApps)
 		checkExpectedOutput(assert, data, mockData.expectedOutput)

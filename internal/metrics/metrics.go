@@ -10,14 +10,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var numberOfAppsWithSecurityUpdate = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "number_of_apps_with_security_update",
+var numberOfPackagesWithUpdate = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "number_of_package_updates",
 	Help: "shows number of applications which has security update",
 })
 
 var generalCVEDetails = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
-		Name: "generalCVEDetails",
+		Name: "general_cve_details",
 		Help: "shows cve score found in availabe security update of linux node",
 	},
 	constants.CveDetailsLabels,
@@ -25,8 +25,8 @@ var generalCVEDetails = prometheus.NewGaugeVec(
 
 var kernelCVEDetails = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
-		Name: "kernelCVEDetails",
-		Help: "shows cve score found in availabe security update of linux node",
+		Name: "kernel_cve_details",
+		Help: "shows kernel cve score found in availabe security update of linux node",
 	},
 	constants.CveDetailsLabels,
 )
@@ -38,7 +38,7 @@ var kernelUpdates = prometheus.NewGauge(
 	})
 
 func RegisterMetrics() {
-	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails, numberOfAppsWithSecurityUpdate, kernelUpdates)
+	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails, numberOfPackagesWithUpdate, kernelUpdates)
 }
 
 func FilterAppsWithNoCVEScore(apps []model.AppCVE) []model.AppCVE {
@@ -70,8 +70,9 @@ func SetCVELabelsValue(appCVEs []model.AppCVE) {
 	}
 }
 
-func SetNumberOfAppsWithSecurityUpdate(count int) {
-	numberOfAppsWithSecurityUpdate.Set(float64(count))
+func SetNumberOfPackagesWithUpdate(count int) {
+
+	numberOfPackagesWithUpdate.Set(float64(count))
 }
 
 func SetKernelUpdateMetricForServer(required bool) {

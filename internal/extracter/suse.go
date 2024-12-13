@@ -14,6 +14,21 @@ type suseExtractor struct {
 	appCVEMap map[string][]string
 }
 
+func (s *suseExtractor) NumberOfAppsInSystemUpdate(text string) int {
+	apps := []string{}
+	lines := strings.Split(text, "\n")
+	for _, line := range lines[2:] {
+		if strings.TrimSpace(line) == "" || strings.HasPrefix(line, "---") {
+			continue
+		}
+		columns := strings.Split(line, "|")
+		if len(columns) >= 3 {
+			apps = append(apps, strings.TrimSpace(columns[2]))
+		}
+	}
+	return len(apps)
+}
+
 // ExtractAppWithSecurityUpdate implements Extracter.
 func (s *suseExtractor) ExtractAppWithSecurityUpdate(output string) []model.AppCVE {
 	lines := strings.Split(output, "\n")

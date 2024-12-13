@@ -1,0 +1,9 @@
+Updating Subscription Management repositories.
+Last metadata expiration check: 0:10:32 ago on Thursday 21 March 2024 08:10:06 AM CET.
+
+NetworkManager.x86_64                                                           1:1.40.16-13.el8_9                                                                      rhel-8-for-x86_64-baseos-rpms
+NetworkManager-config-server.noarch                                             1:1.40.16-13.el8_9                                                                      rhel-8-for-x86_64-baseos-rpms
+NetworkManager-wwan.x86_64                                                      1:1.40.16-13.el8_9                                                                      rhel-8-for-x86_64-baseos-rpms
+bpftool.x86_64                                                                  4.18.0-513.18.1.el8_9                                                                   rhel-8-for-x86_64-baseos-rpms
+buildah.x86_64                                                                  1:1.31.3-3.module+el8.9.0+21243+a586538b                                                rhel-8-for-x86_64-appstream-rpms
+containernetworking-plugins.x86_64                                              1:1.3.0-8.module+el8.9.0+21243+a586538b                                                 rhel-8-for-x86_64-appstream-rpms	
