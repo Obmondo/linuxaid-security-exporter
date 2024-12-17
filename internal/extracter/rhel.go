@@ -151,7 +151,7 @@ func (r *rhelExtractor) findHyphenIndexs(str string) int {
 func newRhelExtactor() *rhelExtractor {
 	return &rhelExtractor{
 		versionMap: fillVersionMap(),
-		appRegex:   regexp.MustCompile(`(\S+)\.(?:x86_64|noarch|i686)\b`),
+		appRegex:   regexp.MustCompile(`(?:\d+:)?(\S+)\.(?:x86_64|noarch|i686)\b`),
 		ignoreArow: regexp.MustCompile(`^\s*-->.*$`),
 	}
 }

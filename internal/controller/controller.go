@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"net/http"
 
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/action"
@@ -12,7 +13,7 @@ import (
 )
 
 type Controller interface {
-	GetTotalNumberOfAppsWithUpdates(ctx *gin.Context)
+	GetNumberOfPackageUpdates(ctx *gin.Context)
 }
 
 func NewController(action action.Action, extractor extracter.Extracter) Controller {
@@ -24,12 +25,11 @@ type controller struct {
 	extractor extracter.Extracter
 }
 
-// GetTotalNumberOfAppsWithUpdates implements Controller.
-func (c *controller) GetTotalNumberOfAppsWithUpdates(ctx *gin.Context) {
-
-	output, hasKernelUpdate, err := c.action.GetPackageUpdateList(ctx, constants.UpdateTypeALL)
+// GetNumberOfPackageUpdates implements Controller.
+func (c *controller) GetNumberOfPackageUpdates(ctx *gin.Context) {
+	output, hasKernelUpdate, numberOfPackageUpdates, err := c.getNumberOfPackageUpdates(ctx)
 	if err != nil {
-		logger.GetLogger().Error(ctx, "failed to find security update", err, nil)
+		logger.GetLogger().Error(ctx, "failed to get updates", err, nil)
 		ctx.Abort()
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error":  err,
@@ -37,11 +37,22 @@ func (c *controller) GetTotalNumberOfAppsWithUpdates(ctx *gin.Context) {
 		})
 		return
 	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"number_of_package_updates": numberOfPackageUpdates,
+		"has_kernel_update":         hasKernelUpdate,
+	})
+}
+
+func (c *controller) getNumberOfPackageUpdates(ctx context.Context) (string, bool, int, error) {
+	output, hasKernelUpdate, err := c.action.GetPackageUpdateList(ctx, constants.UpdateTypeALL)
+	if err != nil {
+		return output, false, 0, err
+	}
+
+	numberOfPackageUpdates := c.extractor.NumberOfAppsInSystemUpdate(output)
 
 	metrics.SetKernelUpdateMetricForServer(hasKernelUpdate)
+	metrics.SetNumberOfPackagesWithUpdate(numberOfPackageUpdates)
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"total_apps_with_updates": c.extractor.NumberOfAppsInSystemUpdate(output),
-		"has_kernel_update":       hasKernelUpdate,
-	})
+	return output, hasKernelUpdate, numberOfPackageUpdates, err
 }

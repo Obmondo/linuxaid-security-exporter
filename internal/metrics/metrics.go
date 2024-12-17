@@ -10,9 +10,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var numberOfPackagesWithUpdate = prometheus.NewGauge(prometheus.GaugeOpts{
+var numberOfPackagesUpdates = prometheus.NewGauge(prometheus.GaugeOpts{
 	Name: "number_of_package_updates",
-	Help: "shows number of applications which has security update",
+	Help: "shows total number of package updates on system",
 })
 
 var generalCVEDetails = prometheus.NewGaugeVec(
@@ -37,8 +37,32 @@ var kernelUpdates = prometheus.NewGauge(
 		Help: "shows whether a server has kernel updates",
 	})
 
+// We are keeping this for backwords compatablity so that things don't break
+// this should be removed after all servers are on latest version of security exporter
+// Metrics to be removed in future: kernelCVEDetailsOld, generalCVEDetailsOld, numberOfAppsWithSecurityUpdates
+var generalCVEDetailsOld = prometheus.NewGaugeVec(
+	prometheus.GaugeOpts{
+		Name: "generalCVEDetails",
+		Help: "shows cve score found in availabe security update of linux node",
+	},
+	constants.CveDetailsLabels,
+)
+
+var kernelCVEDetailsOld = prometheus.NewGaugeVec(
+	prometheus.GaugeOpts{
+		Name: "kernelCVEDetails",
+		Help: "shows cve score found in availabe security update of linux node",
+	},
+	constants.CveDetailsLabels,
+)
+
+var numberOfAppsWithSecurityUpdates = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "number_of_apps_with_security_update",
+	Help: "shows number of applications which has security update",
+})
+
 func RegisterMetrics() {
-	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails, numberOfPackagesWithUpdate, kernelUpdates)
+	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails, numberOfPackagesUpdates, kernelUpdates, numberOfAppsWithSecurityUpdates, generalCVEDetailsOld, kernelCVEDetailsOld)
 }
 
 func FilterAppsWithNoCVEScore(apps []model.AppCVE) []model.AppCVE {
@@ -63,16 +87,18 @@ func SetCVELabelsValue(appCVEs []model.AppCVE) {
 		for i := range appCVE.CVEID {
 			if strings.Contains(appCVE.Name, "kernel") {
 				kernelCVEDetails.WithLabelValues(appCVE.Name, appCVE.CVEID[i], appCVE.CVEScore[i])
+				kernelCVEDetailsOld.WithLabelValues(appCVE.Name, appCVE.CVEID[i], appCVE.CVEScore[i])
 				continue
 			}
 			generalCVEDetails.WithLabelValues(appCVE.Name, appCVE.CVEID[i], appCVE.CVEScore[i])
+			generalCVEDetailsOld.WithLabelValues(appCVE.Name, appCVE.CVEID[i], appCVE.CVEScore[i])
 		}
 	}
 }
 
 func SetNumberOfPackagesWithUpdate(count int) {
-
-	numberOfPackagesWithUpdate.Set(float64(count))
+	numberOfPackagesUpdates.Set(float64(count))
+	numberOfAppsWithSecurityUpdates.Set(float64(count))
 }
 
 func SetKernelUpdateMetricForServer(required bool) {
