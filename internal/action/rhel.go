@@ -6,35 +6,36 @@ import (
 	"os/exec"
 	"strings"
 
+	"gitea.obmondo.com/EnableIT/security-exporter/internal/constants"
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 )
 
-type rhel struct{}
+func newRhelAction() *rhel {
+	return &rhel{}
+}
 
-// GetPackageUpdateList implements Action.
-func (*rhel) GetPackageUpdateList() (string, bool, error) {
-	logger.GetLogger().Info(context.Background(), logMsgCheckForSecurityUpdate, nil)
-	cmd := exec.Command("yum", "--security", "check-update")
-	output, err := cmd.Output()
+type rhel struct {
+}
+
+func (r *rhel) GetPackageUpdateList(ctx context.Context, _ constants.UpdateType) (string, bool, error) {
+	logger.GetLogger().Info(ctx, logMsgCheckForUpdates, nil)
+	output, err := exec.CommandContext(ctx, "yum", "check-update").CombinedOutput()
 	if err != nil && !strings.Contains(err.Error(), "exit status 100") {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			logger.GetLogger().Error(context.Background(), "failed to get apps with update list including security via YUM", err, map[string]any{"output": string(output), "stderr": exitErr.Stderr})
-		}
+		logger.GetLogger().Error(ctx, logMsgFailedToGetSystemUpdates, err, map[string]any{"output": string(output)})
 		return "", false, err
 	}
 
 	return string(output), strings.Contains(string(output), "kernel-core"), nil
+
 }
 
 // GetChangelogs implements Action.
-func (*rhel) GetChangelogs(packageName string) (string, error) {
-	logger.GetLogger().Info(context.Background(), logMsgGetChangeLogForPackage, map[string]any{"pkg-name": packageName})
-	cmd := exec.Command("yum", "changelog", packageName)
+func (r *rhel) GetChangelogs(ctx context.Context, packageName string) (string, error) {
+	logger.GetLogger().Info(ctx, logMsgGetChangeLogForPackage, map[string]any{"pkg-name": packageName})
+	cmd := exec.CommandContext(ctx, "yum", "changelog", packageName)
 	output, err := cmd.Output()
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			logger.GetLogger().Error(context.Background(), "faield to get changelog", err, map[string]any{"output": string(output), "stderr": exitErr.Stderr})
-		}
+		logger.GetLogger().Error(ctx, logMsgFailedToGetChangeLogForPackage, err, map[string]any{"output": string(output)})
 		return "", err
 	}
 	if strings.Contains(string(output), "is not installed") {
@@ -44,19 +45,13 @@ func (*rhel) GetChangelogs(packageName string) (string, error) {
 }
 
 // GetCurrentPackageVersion implements Action.
-func (*rhel) GetCurrentPackageVersion(packageName string) (string, error) {
-	logger.GetLogger().Info(context.Background(), logMsgGetPackageVersion, map[string]any{"pkg-name": packageName})
-	cmd := exec.Command("rpm", "-q", "--qf", "%{VERSION}-%{RELEASE}", packageName)
+func (r *rhel) GetCurrentPackageVersion(ctx context.Context, packageName string) (string, error) {
+	logger.GetLogger().Info(ctx, logMsgGetPackageVersion, map[string]any{"pkg-name": packageName})
+	cmd := exec.CommandContext(ctx, "rpm", "-q", "--qf", "%{VERSION}-%{RELEASE}", packageName)
 	output, err := cmd.Output()
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			logger.GetLogger().Error(context.Background(), "failed to get package version", err, map[string]any{"output": string(output), "stderr": exitErr.Stderr})
-		}
+		logger.GetLogger().Error(ctx, logMsgFailedToGetPackageVersion, err, map[string]any{"output": string(output)})
 		return "", err
 	}
 	return string(output), nil
-}
-
-func newRhelAction() *rhel {
-	return &rhel{}
 }

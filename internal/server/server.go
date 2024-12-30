@@ -5,32 +5,31 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/gin-gonic/gin"
 )
 
-func Start(done chan os.Signal, host string, port int) {
+func Start(ctx context.Context, router *gin.Engine, host string, port int) {
 	server := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", host, port),
-		Handler: promhttp.Handler(),
+		Handler: router.Handler(),
 	}
 	go func() {
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.GetLogger().Fatal(context.Background(), "err occured in server", err, nil)
+			logger.GetLogger().Fatal(ctx, "err occured in server", err, nil)
 		}
 	}()
-	<-done
+	<-ctx.Done()
 
-	logger.GetLogger().Info(context.Background(), "shutting down server", nil)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	logger.GetLogger().Info(ctx, "shutting down server", nil)
+	serverCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := server.Shutdown(ctx); err != nil {
-		logger.GetLogger().Fatal(ctx, "error while shutting down Server. Initiating force shutdown...", err, nil)
+	if err := server.Shutdown(serverCtx); err != nil {
+		logger.GetLogger().Fatal(serverCtx, "error while shutting down Server. Initiating force shutdown...", err, nil)
 	} else {
-		logger.GetLogger().Info(ctx, "server exiting", nil)
+		logger.GetLogger().Info(serverCtx, "server exiting", nil)
 	}
 }

@@ -16,7 +16,7 @@ import (
 )
 
 type CVEService interface {
-	FillAppsDataWithCVEScore(cveIDs ...model.AppCVE) ([]model.AppCVE, bool, []error)
+	FillAppsDataWithCVEScore(ctx context.Context, cveIDs ...model.AppCVE) ([]model.AppCVE, bool, []error)
 }
 
 type service struct {
@@ -26,15 +26,15 @@ type service struct {
 }
 
 // FillAppsDataWithCVEScore implements CVEService.
-func (s *service) FillAppsDataWithCVEScore(appCVEs ...model.AppCVE) ([]model.AppCVE, bool, []error) {
-	logger.GetLogger().Info(context.Background(), "fetching cve scores for packages", nil)
+func (s *service) FillAppsDataWithCVEScore(ctx context.Context, appCVEs ...model.AppCVE) ([]model.AppCVE, bool, []error) {
+	logger.GetLogger().Info(ctx, "fetching cve scores for packages", nil)
 	s.sustainableRate = time.NewTicker(s.cfg.GetCVERequestInterval())
 	defer s.sustainableRate.Stop()
 
 	errs := make([]error, 0, len(appCVEs))
 	fetchForAllAppsFailed := true
 	for i, appCVE := range appCVEs {
-		cves, failedToFetchForAllCVEIDs, errList := s.processAppCVE(appCVE)
+		cves, failedToFetchForAllCVEIDs, errList := s.processAppCVE(ctx, appCVE)
 		if len(errList) != 0 {
 			errs = append(errs, concatenateErrors(errList))
 		}
@@ -46,14 +46,14 @@ func (s *service) FillAppsDataWithCVEScore(appCVEs ...model.AppCVE) ([]model.App
 	return appCVEs, fetchForAllAppsFailed, errs
 }
 
-func (s *service) processAppCVE(appCVE model.AppCVE) (model.AppCVE, bool, []error) {
+func (s *service) processAppCVE(ctx context.Context, appCVE model.AppCVE) (model.AppCVE, bool, []error) {
 	errs := []error{}
 	cveIDWithNoScore := make(map[string]bool)
 	for _, cveID := range appCVE.CVEID {
 		<-s.sustainableRate.C
 
-		logger.GetLogger().Info(context.Background(), "fetching cve score for app", map[string]any{"app-name": appCVE.Name, "cveID": cveID})
-		nvdAPIResponse, err := s.getCVEFromAPI(cveID, appCVE.Name)
+		logger.GetLogger().Info(ctx, "fetching cve score for app", map[string]any{"app-name": appCVE.Name, "cveID": cveID})
+		nvdAPIResponse, err := s.getCVEFromAPI(ctx, cveID, appCVE.Name)
 		if err != nil {
 			errs = append(errs, err)
 		}
@@ -89,38 +89,38 @@ func (s *service) filterAppCVEID(app model.AppCVE, mp map[string]bool) (model.Ap
 	return app, failedToFetchForAllCVEIDs
 }
 
-func (s *service) getCVEFromAPI(cveID string, appName string) (*model.NVDJsonRespone, error) {
+func (s *service) getCVEFromAPI(ctx context.Context, cveID string, appName string) (*model.NVDJsonRespone, error) {
 	url := fmt.Sprintf("%s%s?%s=%s", s.cfg.GetCVEAPI(), s.cfg.GetCVEAPIEndpoint(), constants.ParamCVEID, cveID)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
-	logger.GetLogger().Info(context.Background(), "creating request", map[string]any{"app-name": appName, "url": url})
+	logger.GetLogger().Info(ctx, "creating request", map[string]any{"app-name": appName, "url": url})
 	if err != nil {
-		logger.GetLogger().Error(context.Background(), "failed to create request", err, map[string]any{"app-name": appName})
+		logger.GetLogger().Error(ctx, "failed to create request", err, map[string]any{"app-name": appName})
 		return nil, err
 	}
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		logger.GetLogger().Error(context.Background(), "failed to get cve data from 3rd party api", err, map[string]any{"app-name": appName})
+		logger.GetLogger().Error(ctx, "failed to get cve data from 3rd party api", err, map[string]any{"app-name": appName})
 		return nil, err
 	}
 
 	if resp.StatusCode == http.StatusForbidden {
 		err = errors.New("rate limit reached")
-		logger.GetLogger().Error(context.Background(), "failed to get cve data due to ratelimit", err, map[string]any{"status code": resp.StatusCode, "app-name": appName})
+		logger.GetLogger().Error(ctx, "failed to get cve data due to ratelimit", err, map[string]any{"status code": resp.StatusCode, "app-name": appName})
 		return nil, err
 	}
 
 	defer func() {
 		if resp.Body != nil {
 			if err := resp.Body.Close(); err != nil {
-				logger.GetLogger().Error(context.Background(), "failed to close response body", err, map[string]any{"app-name": appName})
+				logger.GetLogger().Error(ctx, "failed to close response body", err, map[string]any{"app-name": appName})
 			}
 		}
 	}()
 
 	var nvdApiResponse model.NVDJsonRespone
 	if err := json.NewDecoder(resp.Body).Decode(&nvdApiResponse); err != nil {
-		logger.GetLogger().Error(context.Background(), "failed to marshal json response", err, map[string]any{"app-name": appName})
+		logger.GetLogger().Error(ctx, "failed to marshal json response", err, map[string]any{"app-name": appName})
 		return nil, err
 	}
 

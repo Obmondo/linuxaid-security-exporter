@@ -1,0 +1,13 @@
+Loaded plugins: fastestmirror, versionlock
+Loading mirror speeds from cached hostfile
+ --> libappindicator-devel-12.10.0-13.el7.i686 from base excluded (updateinfo)
+ --> libappindicator-devel-12.10.0-13.el7.x86_64 from base excluded (updateinfo)
+ --> libao-1.1.0-8.el7.i686 from base excluded (updateinfo)
+ --> libao-1.1.0-8.el7.x86_64 from base excluded (updateinfo)
+ --> libaio-devel-0.3.109-13.el7.i686 from base excluded (updateinfo)
+ --> libaio-devel-0.3.109-13.el7.x86_64 from base excluded (updateinfo)
+ --> libappindicator-12.10.0-13.el7.i686 from base excluded (updateinfo)
+ --> libappindicator-12.10.0-13.el7.x86_64 from base excluded (updateinfo)
+ --> libao-devel-1.1.0-8.el7.i686 from base excluded (updateinfo)
+ --> libao-devel-1.1.0-8.el7.x86_64 from base excluded (updateinfo)
+ --> rhythmbox-3.4.2-2.el7.x86_64 from base excluded (updateinfo)

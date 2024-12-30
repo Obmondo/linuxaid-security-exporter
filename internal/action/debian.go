@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"gitea.obmondo.com/EnableIT/security-exporter/internal/constants"
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 )
 
@@ -14,46 +15,36 @@ func newDebianAction() *aptAction {
 
 type aptAction struct{}
 
-// GetPackageUpdateList implements AptAction.
-func (a *aptAction) GetPackageUpdateList() (string, bool, error) {
-	logger.GetLogger().Info(context.Background(), logMsgCheckForSecurityUpdate, nil)
-
-	upgradeCmd := exec.Command("apt-get", "upgrade", "-s")
-	upgradeOut, err := upgradeCmd.CombinedOutput()
+func (a *aptAction) GetPackageUpdateList(ctx context.Context, _ constants.UpdateType) (string, bool, error) {
+	logger.GetLogger().Info(ctx, logMsgCheckForUpdates, nil)
+	output, err := exec.CommandContext(ctx, "apt-get", "upgrade", "-s").CombinedOutput()
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			logger.GetLogger().Error(context.Background(), "failed to get package updates list", exitErr, map[string]any{"stderr": string(exitErr.Stderr)})
-		}
+		logger.GetLogger().Error(ctx, logMsgFailedToGetSystemUpdates, err, map[string]any{"output": string(output)})
 		return "", false, err
 	}
 
-	return string(upgradeOut), strings.Contains(string(upgradeOut), "linux-image"), nil
+	return string(output), strings.Contains(string(output), "linux-image"), nil
 }
 
 // GetChangelogs implements AptAction.
-func (*aptAction) GetChangelogs(packageName string) (string, error) {
-	logger.GetLogger().Info(context.Background(), logMsgGetChangeLogForPackage, map[string]any{"pkg-name": packageName})
-	changelogCmd := exec.Command("apt-get", "changelog", packageName)
-	changelogOut, err := changelogCmd.Output()
+func (a *aptAction) GetChangelogs(ctx context.Context, packageName string) (string, error) {
+
+	logger.GetLogger().Info(ctx, logMsgGetChangeLogForPackage, map[string]any{"pkg-name": packageName})
+	output, err := exec.CommandContext(ctx, "apt-get", "changelog", packageName).CombinedOutput()
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			logger.GetLogger().Error(context.Background(), "failed to get change log for a package", exitErr, map[string]any{"package-name": packageName, "stderr": exitErr.Stderr})
-		}
+		logger.GetLogger().Error(ctx, logMsgFailedToGetChangeLogForPackage, err, map[string]any{"package-name": packageName, "output": string(output)})
 		return "", err
 	}
-	return string(changelogOut), nil
+	return string(output), nil
 }
 
 // GetCurrentPackageVersion implements AptAction.
-func (*aptAction) GetCurrentPackageVersion(packageName string) (string, error) {
-	logger.GetLogger().Info(context.Background(), logMsgGetPackageVersion, map[string]any{"pkg-name": packageName})
-	dpkgCmd := exec.Command("dpkg-query", "-W", "-f", "${Version}", packageName)
-	dpkgOut, err := dpkgCmd.Output()
+func (a *aptAction) GetCurrentPackageVersion(ctx context.Context, packageName string) (string, error) {
+	logger.GetLogger().Info(ctx, logMsgGetPackageVersion, map[string]any{"pkg-name": packageName})
+	output, err := exec.CommandContext(ctx, "dpkg-query", "-W", "-f", "${Version}", packageName).CombinedOutput()
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			logger.GetLogger().Error(context.Background(), "failed to get package Version", exitErr, map[string]any{"package-name": packageName, "stderr": exitErr.Stderr})
-		}
+		logger.GetLogger().Error(ctx, logMsgGetPackageVersion, err, map[string]any{"package-name": packageName, "output": string(output)})
 		return "", err
 	}
-	return strings.TrimSpace(string(dpkgOut)), nil
+	return strings.TrimSpace(string(output)), nil
 }

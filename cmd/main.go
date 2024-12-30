@@ -3,33 +3,54 @@ package main
 import (
 	"context"
 	"flag"
-	"os"
 	"os/signal"
 	"syscall"
 
 	"gitea.obmondo.com/EnableIT/security-exporter/config"
+	"gitea.obmondo.com/EnableIT/security-exporter/internal/action"
+	"gitea.obmondo.com/EnableIT/security-exporter/internal/controller"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/cron"
+	"gitea.obmondo.com/EnableIT/security-exporter/internal/cve"
+	"gitea.obmondo.com/EnableIT/security-exporter/internal/extracter"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/metrics"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/server"
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/distro"
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
+	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
-	done := make(chan os.Signal, 2)
-	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
 
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 	metrics.RegisterMetrics()
-	cfg := config.NewConfig(*configPath())
-	distro := distro.GetCurrentOS()
-	crongService, err := cron.Start(cfg, distro)
+
+	router := gin.Default()
+
+	actionService, extractorService, cveService, controllerService, cfg := getServices()
+	crongService, err := cron.Start(ctx, cfg, actionService, extractorService, cveService)
 	if err != nil {
 		logger.GetLogger().Fatal(context.Background(), "fatal failed to start cron service", err, nil)
 	}
 
-	server.Start(done, cfg.GetServerHost(), cfg.GetServerPort())
+	server.Start(ctx, router, cfg.GetServerHost(), cfg.GetServerPort())
 
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	router.GET("/total_number_of_package_updates", controllerService.GetNumberOfPackageUpdates)
+	server.Start(ctx, router, cfg.GetServerHost(), cfg.GetServerPort())
 	crongService.Stop()
+	crongService.Stop()
+}
+
+func getServices() (action.Action, extracter.Extracter, cve.CVEService, controller.Controller, config.Config) {
+	cfg := config.NewConfig(*configPath())
+	distro := distro.GetCurrentOS()
+	actionService := action.NewAction(distro)
+	extractorService := extracter.NewExtractor(distro)
+	cveService := cve.NewCVEService(cfg)
+	controllerService := controller.NewController(actionService, extractorService)
+	return actionService, extractorService, cveService, controllerService, cfg
 }
 
 func configPath() *string {

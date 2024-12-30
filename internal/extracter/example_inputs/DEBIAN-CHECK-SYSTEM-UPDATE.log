@@ -1,0 +1,18 @@
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Calculating upgrade... Done
+The following packages have been kept back:
+  libipa-hbac0 libnss-sss libpam-sss libsss-certmap0 libsss-idmap0 libsss-nss-idmap0 python3-sss sssd sssd-ad sssd-ad-common sssd-common sssd-dbus sssd-ipa sssd-krb5
+  sssd-krb5-common sssd-ldap sssd-proxy sssd-tools
+The following packages will be upgraded:
+  libarchive13 linux-firmware puppet-agent python3-urllib3
+4 upgraded, 0 newly installed, 0 to remove and 18 not upgraded.
+Inst libarchive13 [3.6.0-1ubuntu1.2] (3.6.0-1ubuntu1.3 Ubuntu:22.04/jammy-security, Ubuntu:22.04/jammy-updates [amd64])
+Inst linux-firmware [20220329.git681281e4-0ubuntu3.34] (20220329.git681281e4-0ubuntu3.35 Ubuntu:22.04/jammy-updates [all])
+Inst puppet-agent [7.33.0-1jammy] (7.34.0-1jammy Puppetlabs:jammy [amd64])
+Inst python3-urllib3 [1.26.5-1~exp1ubuntu0.1] (1.26.5-1~exp1ubuntu0.2 Ubuntu:22.04/jammy-security, Ubuntu:22.04/jammy-updates [all])
+Conf libarchive13 (3.6.0-1ubuntu1.3 Ubuntu:22.04/jammy-security, Ubuntu:22.04/jammy-updates [amd64])
+Conf linux-firmware (20220329.git681281e4-0ubuntu3.35 Ubuntu:22.04/jammy-updates [all])
+Conf puppet-agent (7.34.0-1jammy Puppetlabs:jammy [amd64])
+Conf python3-urllib3 (1.26.5-1~exp1ubuntu0.2 Ubuntu:22.04/jammy-security, Ubuntu:22.04/jammy-updates [all])

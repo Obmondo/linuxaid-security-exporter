@@ -19,13 +19,6 @@ server:
   run_type: testing
 ```
 
-
-### Note
-
-- When making a change to code or config.local.yaml file please make sure to bump version [in make file](./Makefile)
-- currently path to puppet executable is hardcoded if you wan to do a local run please make sure to change path [here](./internal/metrics/metrics.go)
-
-
 ### Enviroment variables list 
 
 ```
@@ -44,9 +37,9 @@ CRON_EXPRESSION - this will basically set how many times this program will check
 ```
 # HELP cve_details shows cve score found in availabe security update of linux node
 # TYPE cve_details gauge
-cve_details{application="bar",cve_id="CVE-2024-0855",severity="1.5"} 0
-cve_details{application="curl",cve_id="CVE-2024-0853",severity="1.4"} 0
-cve_details{application="foo",cve_id="CVE-2024-0855",,severity="1.6"} 0
+general_cve_details{application="bar",cve_id="CVE-2024-0855",severity="1.5"} 0
+general_cve_details{application="curl",cve_id="CVE-2024-0853",severity="1.4"} 0
+general_cve_details{application="foo",cve_id="CVE-2024-0855",,severity="1.6"} 0
 ```
 ![metrices](./assests/metrices.png)
 

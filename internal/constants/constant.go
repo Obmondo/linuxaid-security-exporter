@@ -11,6 +11,13 @@ const (
 	INVALID Distro = "invalid"
 )
 
+type UpdateType string
+
+const (
+	UpdateTypeALL      = "all"
+	UpdateTypeSecurity = "security"
+)
+
 const (
 	ParamCVEID = "cveID"
 )

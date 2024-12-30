@@ -17,6 +17,12 @@ var _ Extracter = &rhelExtractor{}
 type rhelExtractor struct {
 	versionMap map[string]bool
 	appRegex   *regexp.Regexp
+	ignoreArow *regexp.Regexp
+}
+
+// ExtractAppsInUpdate implements Extracter.
+func (r *rhelExtractor) NumberOfAppsInSystemUpdate(text string) int {
+	return len(r.ExtractAppWithSecurityUpdate(text))
 }
 
 func fillVersionMap() map[string]bool {
@@ -89,8 +95,8 @@ func (r *rhelExtractor) ExtractAppWithSecurityUpdate(text string) []model.AppCVE
 	lines := strings.Split(text, "\n")
 	var processedLines []string
 
-	for _, line := range lines {
-		if strings.TrimSpace(line) != "" {
+	for i, line := range lines {
+		if i >= 3 && !r.ignoreArow.MatchString(line) && strings.TrimSpace(line) != "" {
 			processedLines = append(processedLines, line)
 		}
 	}
@@ -146,5 +152,6 @@ func newRhelExtactor() *rhelExtractor {
 	return &rhelExtractor{
 		versionMap: fillVersionMap(),
 		appRegex:   regexp.MustCompile(`(?:\d+:)?(\S+)\.(?:x86_64|noarch|i686)\b`),
+		ignoreArow: regexp.MustCompile(`^\s*-->.*$`),
 	}
 }

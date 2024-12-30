@@ -17,6 +17,11 @@ type debianExtractor struct {
 	instRegex *regexp.Regexp
 }
 
+// ExtractAppsInUpdate implements Extracter.
+func (d *debianExtractor) NumberOfAppsInSystemUpdate(text string) int {
+	return len(d.ExtractAppWithSecurityUpdate(text))
+}
+
 /*
 	please check ./example_inputs/DEBIAN_CHANGELOG.log for sample input
 */
