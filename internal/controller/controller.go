@@ -8,6 +8,7 @@ import (
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/constants"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/extracter"
 	"gitea.obmondo.com/EnableIT/security-exporter/internal/metrics"
+	"gitea.obmondo.com/EnableIT/security-exporter/internal/model"
 	"gitea.obmondo.com/EnableIT/security-exporter/utils/logger"
 	"github.com/gin-gonic/gin"
 )
@@ -27,32 +28,32 @@ type controller struct {
 
 // GetNumberOfPackageUpdates implements Controller.
 func (c *controller) GetNumberOfPackageUpdates(ctx *gin.Context) {
-	output, hasKernelUpdate, numberOfPackageUpdates, err := c.getNumberOfPackageUpdates(ctx)
+	output, errOutput, err := c.getNumberOfPackageUpdates(ctx)
 	if err != nil {
-		logger.GetLogger().Error(ctx, "failed to get updates", err, nil)
+		logger.GetLogger().Error(ctx, "failed to get updates", err, map[string]any{"output": errOutput.CmdOutput})
 		ctx.Abort()
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error":  err,
-			"output": output,
-		})
+		ctx.JSON(http.StatusInternalServerError, errOutput)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"number_of_package_updates": numberOfPackageUpdates,
-		"has_kernel_update":         hasKernelUpdate,
-	})
+	ctx.JSON(http.StatusOK, output)
 }
 
-func (c *controller) getNumberOfPackageUpdates(ctx context.Context) (string, bool, int, error) {
+func (c *controller) getNumberOfPackageUpdates(ctx context.Context) (*model.TotalNumberOfPackagesWithUpdateResponse, *model.CommandErrResponse, error) {
 	output, hasKernelUpdate, err := c.action.GetPackageUpdateList(ctx, constants.UpdateTypeALL)
 	if err != nil {
-		return output, false, 0, err
+		return nil, &model.CommandErrResponse{
+			CmdOutput: output,
+			Error:     err,
+		}, err
 	}
 
-	numberOfPackageUpdates := c.extractor.NumberOfAppsInSystemUpdate(output)
+	totalNumberOfPackagesWithUpdate := c.extractor.NumberOfAppsInSystemUpdate(output)
 
 	metrics.SetKernelUpdateMetricForServer(hasKernelUpdate)
-	metrics.SetNumberOfPackagesWithUpdate(numberOfPackageUpdates)
+	metrics.SetTotalNumberOfPackagesWithUpdate(totalNumberOfPackagesWithUpdate)
 
-	return output, hasKernelUpdate, numberOfPackageUpdates, err
+	return &model.TotalNumberOfPackagesWithUpdateResponse{
+		TotalNumberOfPackagesWithUpdate: totalNumberOfPackagesWithUpdate,
+		HasKernelUpdate:                 hasKernelUpdate,
+	}, nil, err
 }

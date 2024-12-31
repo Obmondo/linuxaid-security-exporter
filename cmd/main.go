@@ -37,7 +37,7 @@ func main() {
 	server.Start(ctx, router, cfg.GetServerHost(), cfg.GetServerPort())
 
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
-	router.GET("/total_number_of_package_updates", controllerService.GetNumberOfPackageUpdates)
+	router.GET("/total_number_of_packages_with_update", controllerService.GetNumberOfPackageUpdates)
 	server.Start(ctx, router, cfg.GetServerHost(), cfg.GetServerPort())
 	crongService.Stop()
 	crongService.Stop()

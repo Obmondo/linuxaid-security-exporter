@@ -38,7 +38,7 @@ func (s *service) collectSUSEMetrics(ctx context.Context) {
 	if err != nil {
 		return
 	}
-	metrics.SetNumberOfPackagesWithUpdate(s.extractorService.NumberOfAppsInSystemUpdate(output))
+	metrics.SetTotalNumberOfPackagesWithUpdate(s.extractorService.NumberOfAppsInSystemUpdate(output))
 	metrics.SetKernelUpdateMetricForServer(isKernelUpdate)
 	output, _, err = s.actionService.GetPackageUpdateList(ctx, constants.UpdateTypeSecurity)
 	if err != nil {
@@ -68,7 +68,7 @@ func (s *service) collectDefaultMetrics(ctx context.Context) {
 
 func (s *service) getAppsWithCVEIDs(ctx context.Context, output string) []model.AppCVE {
 	apps := s.extractorService.ExtractAppWithSecurityUpdate(output)
-	metrics.SetNumberOfPackagesWithUpdate(len(apps))
+	metrics.SetTotalNumberOfPackagesWithUpdate(len(apps))
 	for i, app := range apps {
 		logger.GetLogger().Info(ctx, "starting to process app", map[string]any{"index": i, "app-name": app.Name})
 		version, err := s.actionService.GetCurrentPackageVersion(ctx, app.Name)

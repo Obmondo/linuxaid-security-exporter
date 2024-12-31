@@ -10,8 +10,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var numberOfPackagesUpdates = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "number_of_package_updates",
+var totalNumberOfPackagesWithUpdate = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "total_number_of_packages_with_update",
 	Help: "shows total number of package updates on system",
 })
 
@@ -62,7 +62,7 @@ var numberOfAppsWithSecurityUpdates = prometheus.NewGauge(prometheus.GaugeOpts{
 })
 
 func RegisterMetrics() {
-	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails, numberOfPackagesUpdates, kernelUpdates, numberOfAppsWithSecurityUpdates, generalCVEDetailsOld, kernelCVEDetailsOld)
+	prometheus.MustRegister(generalCVEDetails, kernelCVEDetails, totalNumberOfPackagesWithUpdate, kernelUpdates, numberOfAppsWithSecurityUpdates, generalCVEDetailsOld, kernelCVEDetailsOld)
 }
 
 func FilterAppsWithNoCVEScore(apps []model.AppCVE) []model.AppCVE {
@@ -96,8 +96,8 @@ func SetCVELabelsValue(appCVEs []model.AppCVE) {
 	}
 }
 
-func SetNumberOfPackagesWithUpdate(count int) {
-	numberOfPackagesUpdates.Set(float64(count))
+func SetTotalNumberOfPackagesWithUpdate(count int) {
+	totalNumberOfPackagesWithUpdate.Set(float64(count))
 	numberOfAppsWithSecurityUpdates.Set(float64(count))
 }
 
