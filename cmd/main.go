@@ -34,8 +34,6 @@ func main() {
 		logger.GetLogger().Fatal(context.Background(), "fatal failed to start cron service", err, nil)
 	}
 
-	server.Start(ctx, router, cfg.GetServerHost(), cfg.GetServerPort())
-
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	router.GET("/total_number_of_packages_with_update", controllerService.GetNumberOfPackageUpdates)
 	server.Start(ctx, router, cfg.GetServerHost(), cfg.GetServerPort())
