@@ -5,6 +5,7 @@ After=basic.target network.target
 
 [Service]
 EnvironmentFile=-/etc/default/obmondo-security-exporter
+Environment="GIN_MODE=release"
 ExecStart=/opt/obmondo/bin/obmondo-security-exporter -config=/etc/obmondo-security-exporter/config.yaml
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process

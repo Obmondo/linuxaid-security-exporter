@@ -17,6 +17,7 @@ func Start(ctx context.Context, router *gin.Engine, host string, port int) {
 		Handler: router.Handler(),
 	}
 	go func() {
+		logger.GetLogger().Debug(ctx, fmt.Sprintf("starting server on %s:%d", host, port), nil)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logger.GetLogger().Fatal(ctx, "err occured in server", err, nil)
 		}
