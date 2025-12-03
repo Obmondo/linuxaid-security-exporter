@@ -1,0 +1,130 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+changelog:
+  use: gitea
+  sort: asc
+  format: "[{{ .SHA }}](https://gitea.obmondo.com/EnableIT/security-exporter/commit/{{ .SHA }}) {{ .Message }}{{ with .AuthorUsername }} (@{{ . }}){{ end }}"
+  abbrev: 7
+  filters:
+    exclude:
+      - init
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Bug fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
+
+builds:
+  - id: "security-exporter-amd64"
+    main: ./cmd/
+    binary: obmondo-security-exporter
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+    flags:
+      - -a
+      - -v
+    ldflags:
+      - -extldflags=-static
+      - -s -w
+      
+  - id: "security-exporter-arm64"
+    main: ./cmd/
+    binary: obmondo-security-exporter
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - arm64
+    flags:
+      - -a
+      - -v
+    ldflags:
+      - -extldflags=-static
+      - -s -w
+
+snapshot:
+  version_template: "{{ .Version }}"
+
+nfpms:
+  - id: deb-packages
+    package_name: obmondo-security-exporter
+    formats:
+      - deb
+    file_name_template: '{{ .PackageName }}_{{ .Version }}_{{ .Arch }}'
+    ids:
+      - security-exporter-amd64
+      - security-exporter-arm64
+
+    vendor: EnableIT ApS
+    homepage: https://obmondo.com
+    maintainer: Obmondo <ops@obmondo.com>
+    description: |-
+      Security Exporter exposes security information about installed packages and CVE relevant info
+    license: MIT
+    mtime: "{{ .CommitDate }}"
+
+    bindir: /opt/obmondo/bin
+    contents:
+      - src: ./config/config.local.yaml
+        dst: /etc/{{ .PackageName }}/config.yaml
+        type: config
+
+      - src: ./{{ .PackageName }}.service
+        dst: /lib/systemd/system/{{ .PackageName }}.service
+
+    scripts:
+      postinstall: "./scripts/postinstall"
+      preremove:   "./scripts/preremove"
+      postremove:  "./scripts/postremove"
+
+
+  - id: rpm-package
+    package_name: obmondo-security-exporter
+    formats:
+      - rpm
+    file_name_template: '{{ .PackageName }}_{{ .Version }}-1.x86_64'
+    ids:
+      - security-exporter-amd64
+
+    vendor: EnableIT ApS
+    homepage: https://obmondo.com
+    maintainer: Obmondo <ops@obmondo.com>
+    description: |-
+      Security Exporter exposes security information about installed packages and CVE relevant info
+    license: MIT
+    mtime: "{{ .CommitDate }}"
+
+    bindir: /opt/obmondo/bin
+    contents:
+      - src: ./config/config.local.yaml
+        dst: /etc/{{ .PackageName }}/config.yaml
+        type: config
+
+      - src: ./{{ .PackageName }}.service
+        dst: /lib/systemd/system/{{ .PackageName }}.service
+
+    scripts:
+      postinstall: "./scripts/postinstall"
+      preremove:   "./scripts/preremove"
+      postremove:  "./scripts/postremove"
+
+gitea_urls:
+  api: https://gitea.obmondo.com/api/v1
+  download: https://gitea.obmondo.com
+  skip_tls_verify: false
