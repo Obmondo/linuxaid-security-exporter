@@ -1,4 +1,4 @@
 #!/bin/sh
 
-systemctl stop myservice.service
-systemctl disable myservice.service
+systemctl stop obmondo-security-exporter.service
+systemctl disable obmondo-security-exporter.service
