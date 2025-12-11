@@ -1,5 +1,6 @@
-name: 'security-exporter-work-flow'
-"on":
+name: "Golang Lint"
+
+on:
   pull_request:
     types:
       - opened
@@ -12,15 +13,15 @@ jobs:
     runs-on: ubuntu-22.04-htzhel1-ax42-a
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: https://gitea.obmondo.com/Obmondo/checkout@v4.3.0
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      - name: Setup Go
+        uses: https://gitea.obmondo.com/Obmondo/setup-go@v6.0.0
         with:
           go-version-file: go.mod
           cache-dependency-path: go.sum
 
-      - name: golangci-lint
+      - name: Run linter
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.60

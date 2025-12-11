@@ -24,7 +24,7 @@ func GetCurrentOS() constants.Distro {
 	switch distribution {
 	case "ubuntu", "debian":
 		return constants.DEBIAN
-	case "centos", "rhel":
+	case "centos", "rhel", "ol":
 		return constants.RHEL
 	case "sles":
 		return constants.SUSE
