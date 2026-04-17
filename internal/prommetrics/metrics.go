@@ -63,8 +63,8 @@ var (
 
 	osSupportEndTimestamp = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "security_exporter_os_support_end_timestamp",
-		Help: "Unix timestamp of the end of an OS support phase (support=full support, eol=standard security updates, extended=paid extended support). Emitted per phase; missing phases are absent.",
-	}, []string{"id", "version", "phase"})
+		Help: "Unix timestamp of the end of an OS support phase (support=full support, eol=standard security updates, extended=paid extended support). The date label repeats the same instant in ISO YYYY-MM-DD form for readability. Emitted per phase; missing phases are absent.",
+	}, []string{"id", "version", "phase", "date"})
 )
 
 // SetLastScanTimestamp records the current time as the last successful scan.
@@ -106,7 +106,7 @@ func SetOSSupportDates(id, version string) {
 		if t.IsZero() {
 			return
 		}
-		osSupportEndTimestamp.WithLabelValues(id, version, phase).Set(float64(t.Unix()))
+		osSupportEndTimestamp.WithLabelValues(id, version, phase, t.UTC().Format("2006-01-02")).Set(float64(t.Unix()))
 	}
 	emit("support", phases.Support)
 	emit("eol", phases.EOL)

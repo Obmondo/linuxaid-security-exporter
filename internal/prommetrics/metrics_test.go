@@ -2,7 +2,9 @@ package prommetrics
 
 import (
 	"testing"
+	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 
 	"security-exporter/internal/pkgscanner"
@@ -130,11 +132,48 @@ func TestSetOSSupportDates(t *testing.T) {
 
 	SetOSSupportDates("ubuntu", "24.04")
 
-	phases := []string{"support", "eol", "extended"}
-	for _, phase := range phases {
-		v := testutil.ToFloat64(osSupportEndTimestamp.WithLabelValues("ubuntu", "24.04", phase))
-		if v <= 0 {
-			t.Errorf("phase %q: expected non-zero timestamp, got %f", phase, v)
+	// The date label must mirror the underlying timestamp in ISO form, so
+	// gather samples and check both value and label together.
+	mfs, err := prometheus.DefaultGatherer.Gather()
+	if err != nil {
+		t.Fatalf("gather: %v", err)
+	}
+	got := map[string]struct {
+		ts   float64
+		date string
+	}{}
+	for _, mf := range mfs {
+		if mf.GetName() != "security_exporter_os_support_end_timestamp" {
+			continue
+		}
+		for _, m := range mf.GetMetric() {
+			var phase, date string
+			for _, l := range m.GetLabel() {
+				switch l.GetName() {
+				case "phase":
+					phase = l.GetValue()
+				case "date":
+					date = l.GetValue()
+				}
+			}
+			got[phase] = struct {
+				ts   float64
+				date string
+			}{m.GetGauge().GetValue(), date}
+		}
+	}
+	for _, phase := range []string{"support", "eol", "extended"} {
+		s, ok := got[phase]
+		if !ok {
+			t.Errorf("phase %q: missing sample", phase)
+			continue
+		}
+		if s.ts <= 0 {
+			t.Errorf("phase %q: expected non-zero timestamp, got %f", phase, s.ts)
+		}
+		want := time.Unix(int64(s.ts), 0).UTC().Format("2006-01-02")
+		if s.date != want {
+			t.Errorf("phase %q: date label %q, want %q (from ts %f)", phase, s.date, want, s.ts)
 		}
 	}
 }
