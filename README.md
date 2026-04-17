@@ -117,7 +117,7 @@ Concurrent scans (cron + HTTP) are mutex-protected — only one scan runs at a t
 | `security_exporter_last_scan_timestamp` | Gauge | — | Unix timestamp of the last successful scan |
 | `security_exporter_scan_errors_total` | Counter | — | Total number of failed scans |
 | `security_exporter_scan_duration_seconds` | Gauge | — | Duration of the last scan in seconds |
-| `security_exporter_os_support_end_timestamp` | GaugeVec | id, version, phase | Unix timestamp of each OS support-phase end date (`phase` = `support`, `eol`, `extended`). Phases absent for the detected distro are not emitted. |
+| `security_exporter_os_support_end_timestamp` | GaugeVec | id, version, phase, date | Unix timestamp of each OS support-phase end date (`phase` = `support`, `eol`, `extended`). The `date` label repeats the same instant as an ISO `YYYY-MM-DD` string for readable dashboards and alert annotations. Phases absent for the detected distro are not emitted. |
 
 ### OS support-phase metric
 
