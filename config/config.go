@@ -13,6 +13,7 @@ type Config struct {
 	VulsServer    VulsServer `yaml:"vuls_server"`
 	ListenAddress string     `yaml:"listen_address"`
 	ScanInterval  Duration   `yaml:"scan_interval"`
+	RandomDelay   Duration   `yaml:"random_delay"`
 }
 
 type VulsServer struct {
@@ -50,6 +51,13 @@ func Load(path string) (*Config, error) {
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("parsing config: %w", err)
 	}
-	slog.Info("loaded config", "path", path)
+	slog.Info("loaded config", "path", path, "scan_interval", cfg.ScanInterval.Duration, "random_delay", cfg.GetRandomDelay())
 	return &cfg, nil
+}
+
+func (c *Config) GetRandomDelay() time.Duration {
+	if c.RandomDelay.Duration == 0 {
+		return time.Hour
+	}
+	return c.RandomDelay.Duration
 }
