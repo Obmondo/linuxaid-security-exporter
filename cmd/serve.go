@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log/slog"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
@@ -126,8 +127,15 @@ func runServe(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
+	randomDelay := cfg.GetRandomDelay()
+	if randomDelay > 0 {
+		delay := time.Duration(rand.Int63n(int64(randomDelay)))
+		slog.Info("applying random startup delay", "delay", delay)
+		time.Sleep(delay)
+	}
+
 	scheduler.Start()
-	slog.Info("scheduler started", "interval", cfg.ScanInterval.Duration)
+	slog.Info("scheduler started", "interval", cfg.ScanInterval.Duration, "random_delay", cfg.GetRandomDelay())
 
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())

@@ -6,3 +6,4 @@ vuls_server:
   ca_file: "/etc/puppetlabs/puppet/ssl/certs/ca.pem"
 listen_address: "127.254.254.254:63396"
 scan_interval: 12h
+# random_delay: 1h  # max random startup delay (default 1h, set to 0s to disable)
