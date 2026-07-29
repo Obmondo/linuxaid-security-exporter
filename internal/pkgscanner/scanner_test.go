@@ -3,6 +3,7 @@ package pkgscanner
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -296,6 +297,45 @@ func TestScan_CollectorError(t *testing.T) {
 	_, err = sc.Scan(context.Background(), coll)
 	if err == nil {
 		t.Fatal("expected error when collector fails")
+	}
+	// A local collector fault must not be reported as an upstream outage —
+	// the daemon exits on ErrUpstream and would crash-loop on this.
+	if errors.Is(err, ErrUpstream) {
+		t.Errorf("collector error must not match ErrUpstream, got %v", err)
+	}
+}
+
+func TestScan_UpstreamStatusError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, "Bad Gateway", http.StatusBadGateway)
+	}))
+	defer server.Close()
+
+	sc, err := New(config.VulsServer{URL: server.URL})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = sc.Scan(context.Background(), &mockCollector{family: "debian", release: "12"})
+	if !errors.Is(err, ErrUpstream) {
+		t.Errorf("expected ErrUpstream for a 502 response, got %v", err)
+	}
+}
+
+func TestScan_UpstreamDialError(t *testing.T) {
+	// Start and immediately stop a server so the address refuses connections.
+	server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	url := server.URL
+	server.Close()
+
+	sc, err := New(config.VulsServer{URL: url})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = sc.Scan(context.Background(), &mockCollector{family: "debian", release: "12"})
+	if !errors.Is(err, ErrUpstream) {
+		t.Errorf("expected ErrUpstream for a refused connection, got %v", err)
 	}
 }
 

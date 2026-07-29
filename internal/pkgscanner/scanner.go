@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -17,6 +18,9 @@ import (
 	"security-exporter/config"
 	"security-exporter/internal/collector"
 )
+
+// ErrUpstream marks failures caused by the Vuls server being unreachable or returning a non 200 status code
+var ErrUpstream = errors.New("vuls upstream unavailable")
 
 type Scanner struct {
 	client    *http.Client
@@ -154,14 +158,14 @@ func (s *Scanner) Scan(ctx context.Context, c collector.Collector) (*ScanResult,
 
 	resp, err := s.client.Do(httpReq)
 	if err != nil {
-		return nil, fmt.Errorf("sending scan request: %w", err)
+		return nil, fmt.Errorf("sending scan request: %w: %w", ErrUpstream, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		respBody, _ := io.ReadAll(resp.Body)
 		slog.Error("scan request rejected", "status", resp.StatusCode, "body", string(respBody))
-		return nil, fmt.Errorf("scan request failed with status %d", resp.StatusCode)
+		return nil, fmt.Errorf("%w: scan request failed with status %d", ErrUpstream, resp.StatusCode)
 	}
 
 	slog.Info("scan completed successfully", "status", resp.StatusCode)

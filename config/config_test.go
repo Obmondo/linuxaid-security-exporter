@@ -19,6 +19,7 @@ vuls_server:
   ca_file: "/etc/ssl/ca.pem"
 listen_address: "127.0.0.1:9090"
 scan_interval: 6h
+upstream_retry_delay: 90m
 `
 	path := writeTempConfig(t, content)
 
@@ -47,6 +48,9 @@ scan_interval: 6h
 	}
 	if cfg.ScanInterval.Duration != 6*time.Hour {
 		t.Errorf("expected scan_interval 6h, got %s", cfg.ScanInterval.Duration)
+	}
+	if cfg.UpstreamRetryDelay.Duration != 90*time.Minute {
+		t.Errorf("expected upstream_retry_delay 90m, got %s", cfg.UpstreamRetryDelay.Duration)
 	}
 }
 
