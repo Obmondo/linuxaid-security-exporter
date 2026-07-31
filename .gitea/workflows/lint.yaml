@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: https://gitea.obmondo.com/Obmondo/checkout@v6.0.2
+        uses: https://gitea.obmondo.com/Obmondo/checkout@v7.0.1
         with:
           fetch-depth: 0
 
