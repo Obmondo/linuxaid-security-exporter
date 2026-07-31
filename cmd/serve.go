@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"math/rand"
 	"net/http"
@@ -96,6 +97,7 @@ func runServe(_ *cobra.Command, _ []string) error {
 	}
 
 	ss := &scanState{}
+	retryDelay := cfg.UpstreamRetryDelay.Duration
 
 	scanTask := func() {
 		ss.mu.Lock()
@@ -106,6 +108,13 @@ func runServe(_ *cobra.Command, _ []string) error {
 
 		result, err := executeScan(ctx, sc, coll)
 		if err != nil {
+			// Exit on upstream connectivity failure so systemd restarts us
+			// retryDelay is added in order to control number of restarts.
+			// Currently, systemd will only restart 4 times a day in case the core issue is not addressed
+			if errors.Is(err, pkgscanner.ErrUpstream) {
+				slog.Error("upstream scan failure, exiting for systemd restart", "error", err, "delay", retryDelay)
+				time.AfterFunc(retryDelay, func() { os.Exit(1) })
+			}
 			return
 		}
 
