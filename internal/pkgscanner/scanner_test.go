@@ -77,7 +77,7 @@ func TestScan(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,7 +112,7 @@ func TestScan_ContentTypeHeader(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,7 +139,7 @@ func TestScan_RequestBody(t *testing.T) {
 		URL:      server.URL,
 		CertFile: "../../mocks/server-cert.pem",
 		KeyFile:  "../../mocks/server-cert.pem",
-	})
+	}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,7 +178,7 @@ func TestScan_SendsSrcPackages(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -239,7 +239,7 @@ func TestScan_MergesBackNewVersion(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -285,7 +285,7 @@ func TestScan_CollectorError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -311,7 +311,7 @@ func TestScan_UpstreamStatusError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -328,7 +328,7 @@ func TestScan_UpstreamDialError(t *testing.T) {
 	url := server.URL
 	server.Close()
 
-	sc, err := New(config.VulsServer{URL: url})
+	sc, err := New(config.VulsServer{URL: url}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -340,7 +340,7 @@ func TestScan_UpstreamDialError(t *testing.T) {
 }
 
 func TestNew_NoTLS(t *testing.T) {
-	sc, err := New(config.VulsServer{URL: "http://localhost:5515"})
+	sc, err := New(config.VulsServer{URL: "http://localhost:5515"}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -353,7 +353,7 @@ func TestNew_CustomTimeout(t *testing.T) {
 	sc, err := New(config.VulsServer{
 		URL:     "http://localhost:5515",
 		Timeout: config.Duration{Duration: 2 * time.Minute},
-	})
+	}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -363,7 +363,7 @@ func TestNew_CustomTimeout(t *testing.T) {
 }
 
 func TestNew_DefaultTimeout(t *testing.T) {
-	sc, err := New(config.VulsServer{URL: "http://localhost:5515"})
+	sc, err := New(config.VulsServer{URL: "http://localhost:5515"}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -378,7 +378,7 @@ func TestNew_InvalidCertFile(t *testing.T) {
 		URL:      "https://localhost:5515",
 		CertFile: "/nonexistent/cert.pem",
 		KeyFile:  "/nonexistent/key.pem",
-	})
+	}, "")
 	if err == nil {
 		t.Fatal("expected error for invalid cert file")
 	}
@@ -469,5 +469,66 @@ func TestBuildTLSConfig_ValidCertWithCA(t *testing.T) {
 	}
 	if tlsCfg.RootCAs == nil {
 		t.Error("expected non-nil RootCAs when CA file specified")
+	}
+}
+
+// nodeScanServer captures the payload the scanner posts and answers with a
+// minimal result, so a test can assert on what was sent.
+func nodeScanServer(t *testing.T, payload *map[string]any) *httptest.Server {
+	t.Helper()
+
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(payload); err != nil {
+			t.Errorf("decoding request: %v", err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode([]ScanResult{{ServerName: "demo.example"}}); err != nil {
+			t.Errorf("encoding response: %v", err)
+		}
+	}))
+}
+
+func TestScan_SendsNodeNameInOptional(t *testing.T) {
+	var payload map[string]any
+	server := nodeScanServer(t, &payload)
+	defer server.Close()
+
+	sc, err := New(config.VulsServer{URL: server.URL}, "worker-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	coll := &mockCollector{family: "debian", release: "12", pkgs: "bash\tii\t5.2.15\n"}
+	if _, err := sc.Scan(context.Background(), coll); err != nil {
+		t.Fatal(err)
+	}
+
+	// The key is capitalised because that is the field vuls persists.
+	optional, ok := payload["Optional"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected an Optional map in the payload, got %v", payload["Optional"])
+	}
+	if optional[optionalNodeName] != "worker-1" {
+		t.Errorf("expected node name worker-1, got %v", optional[optionalNodeName])
+	}
+}
+
+func TestScan_OmitsOptionalWithoutNodeName(t *testing.T) {
+	var payload map[string]any
+	server := nodeScanServer(t, &payload)
+	defer server.Close()
+
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	coll := &mockCollector{family: "debian", release: "12", pkgs: "bash\tii\t5.2.15\n"}
+	if _, err := sc.Scan(context.Background(), coll); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, present := payload["Optional"]; present {
+		t.Errorf("expected no Optional map without a node name, got %v", payload["Optional"])
 	}
 }

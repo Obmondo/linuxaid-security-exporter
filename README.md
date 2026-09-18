@@ -30,6 +30,8 @@ scan_interval: 12h
 | `vuls_server.ca_file` | CA certificate for mTLS (optional) |
 | `listen_address` | Address to serve Prometheus metrics on |
 | `scan_interval` | How often to scan and push results (Go duration, e.g. `12h`, `30m`) |
+| `host_root` | Scan the system mounted under this root instead of the running one: the package tools are pointed at its database. Set to a mounted node root (e.g. `/host`) in a container |
+| `node_name` | Name of this host within a shared certificate, sent to Vuls alongside the packages. Defaults to `$NODE_NAME` |
 
 ## Usage
 
@@ -68,6 +70,44 @@ busybox-static           1:1.30.1-7ubuntu3.1        -          CVE-2023-42366   
                                                                CVE-2025-46394   medium      -            needed
                                                                CVE-2024-58251   medium      -            needed
                                                                CVE-2025-60876   medium      -            needed
+```
+
+## Scanning a host from a container
+
+The exporter shells out to `dpkg-query` or `rpm` either way. With `host_root`
+set it points them at the mounted system's database — `--admindir` for dpkg,
+`--dbpath` for rpm — so the container reads the node's packages while running
+as an ordinary user, with no `chroot` and no privileges.
+
+Mount either the node's root read-only, as node-exporter does, or just the
+paths that are read:
+
+| Mounted read-only | Why |
+|---|---|
+| `/var/lib/dpkg`, or `/var/lib/rpm` | the installed package list |
+| `/etc/os-release` | distro and release |
+
+Available updates are not reported in this mode: `apt`, `dnf` and `zypper`
+need the host's repository metadata and configuration, not just its package
+database. `newVersion` and the update metrics therefore stay empty, while CVE
+matching is unaffected — vuls matches on installed versions.
+
+Hosts are identified in Vuls by the common name of their client certificate.
+Where several hosts share one certificate — the nodes of a Kubernetes cluster —
+`node_name` tells them apart: it is sent in the scan request's `Optional` map,
+which the Vuls server stores with the scan result.
+
+```yaml
+host_root: /host
+node_name: "worker-1"     # or leave unset and pass NODE_NAME
+listen_address: ":63396"  # reachable for scraping, unlike the loopback default
+```
+
+The same applies to a one-shot scan:
+
+```sh
+obmondo-security-exporter scan --host-root /host --node-name "$NODE_NAME" \
+  --server https://vulsserver.example --cert-file tls.crt --key-file tls.key
 ```
 
 ## HTTP Endpoints

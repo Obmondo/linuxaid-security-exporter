@@ -34,6 +34,12 @@ type ScanRequest struct {
 	ServerName  string      `json:"serverName"`
 	Packages    Packages    `json:"packages"`
 	SrcPackages SrcPackages `json:"srcPackages,omitempty"`
+	// Optional is the vuls server's free-form metadata map, which it stores with
+	// the scan result. Hosts that share one certificate — the nodes of a
+	// Kubernetes cluster — put their node name here, because serverName is the
+	// certificate's common name and therefore the same for all of them. The JSON
+	// key is capitalised to match the field vuls persists.
+	Optional map[string]any `json:"Optional,omitempty"`
 }
 
 // ScanResult is the response from the Vuls server.

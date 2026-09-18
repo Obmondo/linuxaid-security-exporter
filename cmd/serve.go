@@ -82,16 +82,16 @@ func runServe(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	coll, err := collector.New()
+	coll, err := collector.New(cfg.HostRoot)
 	if err != nil {
 		return err
 	}
 
-	if id, ver, err := collector.DetectOS(); err == nil {
+	if id, ver, err := collector.DetectOS(cfg.HostRoot); err == nil {
 		prommetrics.SetOSSupportDates(id, ver)
 	}
 
-	sc, err := pkgscanner.New(cfg.VulsServer)
+	sc, err := pkgscanner.New(cfg.VulsServer, cfg.NodeName)
 	if err != nil {
 		return err
 	}

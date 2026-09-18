@@ -26,7 +26,7 @@ func TestScan_ServerError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,7 +45,7 @@ func TestScan_InvalidJSON(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestScan_EmptyCves(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,7 +125,7 @@ func TestScan_MultiplePackagesAndCves(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -172,7 +172,7 @@ func TestScan_ContextCancellation(t *testing.T) {
 	}))
 	defer server.Close()
 
-	sc, err := New(config.VulsServer{URL: server.URL})
+	sc, err := New(config.VulsServer{URL: server.URL}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -188,7 +188,7 @@ func TestScan_ContextCancellation(t *testing.T) {
 }
 
 func TestScan_UnreachableServer(t *testing.T) {
-	sc, err := New(config.VulsServer{URL: "http://127.0.0.1:1"})
+	sc, err := New(config.VulsServer{URL: "http://127.0.0.1:1"}, "")
 	if err != nil {
 		t.Fatal(err)
 	}

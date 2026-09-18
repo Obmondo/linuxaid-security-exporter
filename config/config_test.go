@@ -20,6 +20,8 @@ vuls_server:
 listen_address: "127.0.0.1:9090"
 scan_interval: 6h
 upstream_retry_delay: 90m
+host_root: "/host"
+node_name: "worker-1"
 `
 	path := writeTempConfig(t, content)
 
@@ -51,6 +53,36 @@ upstream_retry_delay: 90m
 	}
 	if cfg.UpstreamRetryDelay.Duration != 90*time.Minute {
 		t.Errorf("expected upstream_retry_delay 90m, got %s", cfg.UpstreamRetryDelay.Duration)
+	}
+	if cfg.HostRoot != "/host" {
+		t.Errorf("expected host_root /host, got %s", cfg.HostRoot)
+	}
+	if cfg.NodeName != "worker-1" {
+		t.Errorf("expected node_name worker-1, got %s", cfg.NodeName)
+	}
+}
+
+func TestLoad_NodeNameFromEnv(t *testing.T) {
+	t.Setenv(nodeNameEnv, "worker-2")
+
+	cfg, err := Load(writeTempConfig(t, "scan_interval: 6h\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.NodeName != "worker-2" {
+		t.Errorf("expected node_name worker-2 from %s, got %s", nodeNameEnv, cfg.NodeName)
+	}
+}
+
+func TestLoad_ConfiguredNodeNameBeatsEnv(t *testing.T) {
+	t.Setenv(nodeNameEnv, "from-env")
+
+	cfg, err := Load(writeTempConfig(t, "node_name: from-config\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.NodeName != "from-config" {
+		t.Errorf("expected node_name from-config, got %s", cfg.NodeName)
 	}
 }
 

@@ -11,11 +11,14 @@ import (
 type rpmCollector struct {
 	family  string
 	release string
+	// dbPath is the rpm database on the scanned system, empty when that is the
+	// system the exporter runs on.
+	dbPath string
 }
 
-func (*rpmCollector) CollectPackages(ctx context.Context) (string, string, error) {
-	cmd := exec.CommandContext(ctx, "rpm", "-qa", "--queryformat",
-		"%{NAME} %{EPOCHNUM} %{VERSION} %{RELEASE} %{ARCH} %{SOURCERPM}\n")
+func (r *rpmCollector) CollectPackages(ctx context.Context) (string, string, error) {
+	cmd := exec.CommandContext(ctx, "rpm", rpmDBArgs(r.dbPath, "-qa", "--queryformat",
+		"%{NAME} %{EPOCHNUM} %{VERSION} %{RELEASE} %{ARCH} %{SOURCERPM}\n")...)
 	out, err := cmd.Output()
 	if err != nil {
 		return "", "", err
@@ -27,7 +30,13 @@ func (*rpmCollector) CollectPackages(ctx context.Context) (string, string, error
 	return pkgs, srcPkgs, nil
 }
 
-func (*rpmCollector) AvailableUpdates(ctx context.Context) (map[string]string, error) {
+func (r *rpmCollector) AvailableUpdates(ctx context.Context) (map[string]string, error) {
+	// dnf and yum read the host's repository metadata, which a mounted database
+	// does not come with.
+	if r.dbPath != "" {
+		return nil, nil
+	}
+
 	out, err := exec.CommandContext(ctx, "dnf", "check-update").Output()
 	if err != nil {
 		// dnf exit code 100 means updates are available (not an error).

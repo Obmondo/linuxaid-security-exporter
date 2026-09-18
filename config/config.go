@@ -9,12 +9,23 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// nodeNameEnv carries the node name into a pod from the downward API, since a
+// ConfigMap cannot hold a per-node value.
+const nodeNameEnv = "NODE_NAME"
+
 type Config struct {
 	VulsServer         VulsServer `yaml:"vuls_server"`
 	ListenAddress      string     `yaml:"listen_address"`
 	ScanInterval       Duration   `yaml:"scan_interval"`
 	RandomDelay        Duration   `yaml:"random_delay"`
 	UpstreamRetryDelay Duration   `yaml:"upstream_retry_delay"`
+	// HostRoot is the scanned system's filesystem root: empty on a host, or the
+	// node root mounted into a container (e.g. /host).
+	HostRoot string `yaml:"host_root"`
+	// NodeName separates hosts that share one certificate, such as the nodes of
+	// a Kubernetes cluster. Falls back to $NODE_NAME, which a pod gets from the
+	// downward API.
+	NodeName string `yaml:"node_name"`
 }
 
 type VulsServer struct {
@@ -52,11 +63,16 @@ func Load(path string) (*Config, error) {
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("parsing config: %w", err)
 	}
+	if cfg.NodeName == "" {
+		cfg.NodeName = os.Getenv(nodeNameEnv)
+	}
 	slog.Info("loaded config",
 		"path", path,
 		"scan_interval", cfg.ScanInterval.Duration,
 		"random_delay", cfg.GetRandomDelay(),
 		"upstream_retry_delay", cfg.UpstreamRetryDelay.Duration,
+		"host_root", cfg.HostRoot,
+		"node_name", cfg.NodeName,
 	)
 	return &cfg, nil
 }

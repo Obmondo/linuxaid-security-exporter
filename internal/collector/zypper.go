@@ -10,11 +10,14 @@ import (
 type zypperCollector struct {
 	family  string
 	release string
+	// dbPath is the rpm database on the scanned system, empty when that is the
+	// system the exporter runs on.
+	dbPath string
 }
 
-func (*zypperCollector) CollectPackages(ctx context.Context) (string, string, error) {
-	cmd := exec.CommandContext(ctx, "rpm", "-qa", "--queryformat",
-		"%{NAME} %{EPOCHNUM} %{VERSION} %{RELEASE} %{ARCH} %{SOURCERPM}\n")
+func (z *zypperCollector) CollectPackages(ctx context.Context) (string, string, error) {
+	cmd := exec.CommandContext(ctx, "rpm", rpmDBArgs(z.dbPath, "-qa", "--queryformat",
+		"%{NAME} %{EPOCHNUM} %{VERSION} %{RELEASE} %{ARCH} %{SOURCERPM}\n")...)
 	out, err := cmd.Output()
 	if err != nil {
 		return "", "", err
@@ -22,7 +25,13 @@ func (*zypperCollector) CollectPackages(ctx context.Context) (string, string, er
 	return parseRpmOutput(string(out))
 }
 
-func (*zypperCollector) AvailableUpdates(ctx context.Context) (map[string]string, error) {
+func (z *zypperCollector) AvailableUpdates(ctx context.Context) (map[string]string, error) {
+	// zypper reads the host's repositories, which a mounted database does not
+	// come with.
+	if z.dbPath != "" {
+		return nil, nil
+	}
+
 	out, err := exec.CommandContext(ctx, "zypper", "--quiet", "list-updates").Output()
 	if err != nil {
 		if isNotFound(err) {

@@ -10,11 +10,15 @@ import (
 type dpkgCollector struct {
 	family  string
 	release string
+	// adminDir is dpkg's database on the scanned system, empty when that is the
+	// system the exporter runs on.
+	adminDir string
 }
 
-func (*dpkgCollector) CollectPackages(ctx context.Context) (string, string, error) {
-	cmd := exec.CommandContext(ctx, "dpkg-query", "-W", "-f",
+func (d *dpkgCollector) CollectPackages(ctx context.Context) (string, string, error) {
+	args := d.dbArgs("-W", "-f",
 		"${binary:Package}\t${db:Status-Abbrev}\t${Version}\t${source:Package}\t${source:Version}\n")
+	cmd := exec.CommandContext(ctx, "dpkg-query", args...)
 	out, err := cmd.Output()
 	if err != nil {
 		return "", "", err
@@ -52,7 +56,12 @@ func (*dpkgCollector) CollectPackages(ctx context.Context) (string, string, erro
 	return pkgs.String(), srcPkgs.String(), nil
 }
 
-func (*dpkgCollector) AvailableUpdates(ctx context.Context) (map[string]string, error) {
+func (d *dpkgCollector) AvailableUpdates(ctx context.Context) (map[string]string, error) {
+	// apt reads its own lists and sources, which a mounted host does not provide.
+	if d.adminDir != "" {
+		return nil, nil
+	}
+
 	cmd := exec.CommandContext(ctx, "apt", "list", "--upgradable")
 	out, err := cmd.Output()
 	if err != nil {
@@ -80,6 +89,14 @@ func (*dpkgCollector) AvailableUpdates(ctx context.Context) (map[string]string, 
 		updates[name] = fields[1]
 	}
 	return updates, nil
+}
+
+// dbArgs prefixes --admindir when the database being read is a mounted host's.
+func (d *dpkgCollector) dbArgs(args ...string) []string {
+	if d.adminDir == "" {
+		return args
+	}
+	return append([]string{"--admindir=" + d.adminDir}, args...)
 }
 
 func (d *dpkgCollector) OSFamily() string { return d.family }
