@@ -42,6 +42,8 @@ With --server, sends packages to the Vuls server for CVE scanning
 	cmd.Flags().String("key-file", "", "TLS client key file")
 	cmd.Flags().String("ca-file", "", "TLS CA certificate file")
 	cmd.Flags().Bool("debug", false, "show detailed package-centric vulnerability table")
+	cmd.Flags().String("host-root", "", "scan this filesystem root instead of the running system (e.g. /host in a container)")
+	cmd.Flags().String("node-name", "", "node name sent alongside the packages, for hosts sharing one certificate")
 
 	return cmd
 }
@@ -57,7 +59,9 @@ func runScan(cmd *cobra.Command, _ []string) error {
 		scanTimeout = vulsServer.Timeout.Duration
 	}
 
-	coll, err := collector.New()
+	hostRoot, _ := cmd.Flags().GetString("host-root")
+
+	coll, err := collector.New(hostRoot)
 	if err != nil {
 		return err
 	}
@@ -77,7 +81,9 @@ func runScan(cmd *cobra.Command, _ []string) error {
 		return printResult(cmd, result)
 	}
 
-	sc, err := pkgscanner.New(vulsServer)
+	nodeName, _ := cmd.Flags().GetString("node-name")
+
+	sc, err := pkgscanner.New(vulsServer, nodeName)
 	if err != nil {
 		return err
 	}

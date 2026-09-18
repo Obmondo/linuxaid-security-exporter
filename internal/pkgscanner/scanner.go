@@ -22,13 +22,18 @@ import (
 // ErrUpstream marks failures caused by the Vuls server being unreachable or returning a non 200 status code
 var ErrUpstream = errors.New("vuls upstream unavailable")
 
+// optionalNodeName is the key the node name travels under in the vuls server's
+// free-form Optional map.
+const optionalNodeName = "nodeName"
+
 type Scanner struct {
 	client    *http.Client
 	serverURL string
 	certname  string
+	nodeName  string
 }
 
-func New(cfg config.VulsServer) (*Scanner, error) {
+func New(cfg config.VulsServer, nodeName string) (*Scanner, error) {
 	transport := &http.Transport{}
 
 	if cfg.CertFile != "" && cfg.KeyFile != "" {
@@ -60,6 +65,7 @@ func New(cfg config.VulsServer) (*Scanner, error) {
 		},
 		serverURL: cfg.URL,
 		certname:  certname,
+		nodeName:  nodeName,
 	}, nil
 }
 
@@ -137,6 +143,10 @@ func (s *Scanner) Scan(ctx context.Context, c collector.Collector) (*ScanResult,
 		Release:    c.Release(),
 		ServerName: s.certname,
 		Packages:   packages,
+	}
+
+	if s.nodeName != "" {
+		req.Optional = map[string]any{optionalNodeName: s.nodeName}
 	}
 
 	if srcRaw != "" {

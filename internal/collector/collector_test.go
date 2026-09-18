@@ -3,6 +3,7 @@ package collector
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 )
 
@@ -177,4 +178,108 @@ func writeTempFile(t *testing.T, content string) string {
 		t.Fatal(err)
 	}
 	return path
+}
+
+func TestDatabaseArgs(t *testing.T) {
+	tests := []struct {
+		name string
+		got  []string
+		want []string
+	}{
+		{
+			name: "DpkgLocal",
+			got:  (&dpkgCollector{}).dbArgs("-W"),
+			want: []string{"-W"},
+		},
+		{
+			name: "DpkgMounted",
+			got:  (&dpkgCollector{adminDir: "/host/var/lib/dpkg"}).dbArgs("-W"),
+			want: []string{"--admindir=/host/var/lib/dpkg", "-W"},
+		},
+		{
+			name: "RpmLocal",
+			got:  rpmDBArgs("", "-qa"),
+			want: []string{"-qa"},
+		},
+		{
+			name: "RpmMounted",
+			got:  rpmDBArgs("/host/var/lib/rpm", "-qa"),
+			want: []string{"--dbpath=/host/var/lib/rpm", "-qa"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if !slices.Equal(tt.got, tt.want) {
+				t.Errorf("expected args %v, got %v", tt.want, tt.got)
+			}
+		})
+	}
+}
+
+func TestDetectOSUnderHostRoot(t *testing.T) {
+	root := writeTempHostRoot(t, "ID=ubuntu\nVERSION_ID=\"24.04\"\n")
+
+	id, release, err := DetectOS(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if id != familyUbuntu {
+		t.Errorf("expected id %s, got %s", familyUbuntu, id)
+	}
+	if release != "24.04" {
+		t.Errorf("expected release 24.04, got %s", release)
+	}
+}
+
+func TestNewUnderHostRoot(t *testing.T) {
+	tests := []struct {
+		name      string
+		osRelease string
+		wantDB    string
+	}{
+		{name: "Debian", osRelease: "ID=ubuntu\nVERSION_ID=\"24.04\"\n", wantDB: dpkgAdminDir},
+		{name: "RedHat", osRelease: "ID=rocky\nVERSION_ID=\"9.4\"\n", wantDB: rpmDBDir},
+		{name: "SUSE", osRelease: "ID=sles\nVERSION_ID=\"15.6\"\n", wantDB: rpmDBDir},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			root := writeTempHostRoot(t, tt.osRelease)
+
+			coll, err := New(root)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			var got string
+			switch c := coll.(type) {
+			case *dpkgCollector:
+				got = c.adminDir
+			case *rpmCollector:
+				got = c.dbPath
+			case *zypperCollector:
+				got = c.dbPath
+			default:
+				t.Fatalf("unexpected collector %T", coll)
+			}
+
+			if want := filepath.Join(root, tt.wantDB); got != want {
+				t.Errorf("expected database %s, got %s", want, got)
+			}
+		})
+	}
+}
+
+func writeTempHostRoot(t *testing.T, osRelease string) string {
+	t.Helper()
+
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "etc"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "etc", "os-release"), []byte(osRelease), 0644); err != nil {
+		t.Fatal(err)
+	}
+	return root
 }
