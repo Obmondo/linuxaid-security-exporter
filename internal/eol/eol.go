@@ -45,6 +45,9 @@ type Entry struct {
 // productBySlug maps an /etc/os-release ID to the endoflife.date product
 // slug used as the key in data.json. Distros the collector does not
 // currently accept (e.g. opensuse-leap) are intentionally absent.
+// productSLES is the endoflife.date product both SUSE os-release IDs map to.
+const productSLES = "sles"
+
 var productBySlug = map[string]string{
 	"debian":    "debian",
 	"ubuntu":    "ubuntu",
@@ -54,8 +57,8 @@ var productBySlug = map[string]string{
 	"ol":        "oracle-linux",
 	"almalinux": "almalinux",
 	"fedora":    "fedora",
-	"sles":      "sles",
-	"suse":      "sles",
+	"sles":      productSLES,
+	"suse":      productSLES,
 }
 
 var table map[string][]Entry
