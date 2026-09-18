@@ -1,6 +1,6 @@
 module security-exporter
 
-go 1.26.5
+go 1.27.1
 
 require (
 	github.com/go-co-op/gocron/v2 v2.22.0

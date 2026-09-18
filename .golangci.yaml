@@ -95,6 +95,12 @@ linters:
           - bodyclose
           - errcheck
           - revive
+          # repeated literals in fixtures and assertions are not constants
+          - goconst
+      # writes to a strings.Builder cannot fail
+      - linters:
+          - revive
+        text: 'unhandled-error: Unhandled error in call to function (strings\.Builder\.Write|fmt\.Fprintf?)'
       - path: mock/.*
         linters:
           - gomnd
