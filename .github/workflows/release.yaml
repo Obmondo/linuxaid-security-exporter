@@ -55,7 +55,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6.2.0
         with:
-          images: ghcr.io/obmondo/security-exporter
+          images: ghcr.io/obmondo/linuxaid-security-exporter
           # the git tag, the same one the gitea release pushes to Harbor
           tags: type=ref,event=tag
 
