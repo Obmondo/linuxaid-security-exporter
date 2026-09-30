@@ -28,8 +28,9 @@ make docker-down  # teardown
 ```
 
 ## Release
-- Gitea: goreleaser with deb/rpm packages (`.goreleaser-gitea.yaml`)
-- GitHub: goreleaser with changelog + tarballs only (`.goreleaser-github.yaml`)
+- Cut with `cog bump --auto` on an up-to-date `master` (`cog.toml`): tags the merged commit and pushes it to `origin` (gitea) and `github`, which is not a mirror
+- Gitea: goreleaser with deb/rpm packages (`.goreleaser-gitea.yaml`) + Harbor image
+- GitHub: goreleaser with changelog + tarballs (`.goreleaser-github.yaml`) + GHCR image
 
 ## Conventions
 - Go 1.24, module name `security-exporter`

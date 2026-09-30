@@ -224,14 +224,15 @@ make docker-down    # stop and remove containers
 
 ## Release
 
-Releases are managed via [GoReleaser](https://goreleaser.com/).
+Releases are cut with [cocogitto](https://docs.cocogitto.io/) and built by [GoReleaser](https://goreleaser.com/).
 
-- **Gitea** — tag push triggers `.gitea/workflows/release.yaml`, which builds deb/rpm packages via `.goreleaser-gitea.yaml` and uploads them to the package signing server.
-- **GitHub** — tag push triggers `.github/workflows/release.yaml`, which creates a GitHub release with changelog and tarballs via `.goreleaser-github.yaml`.
+- **Gitea** — tag push triggers `.gitea/workflows/release.yaml`, which builds deb/rpm packages via `.goreleaser-gitea.yaml`, uploads them to the package signing server, and pushes the `linuxaid-security-exporter` container image to Harbor.
+- **GitHub** — tag push triggers `.github/workflows/release.yaml`, which creates a GitHub release with changelog and tarballs via `.goreleaser-github.yaml` and pushes the same image to GHCR.
 
-To create a release:
+GitHub is not a mirror of gitea, so every tag has to reach both. `cog bump` takes care of that: it picks the next version from the conventional commits since the last tag, tags the merged commit, and pushes `master` and the tag to `origin` (gitea) and `github`. It refuses to run unless the local `master` matches gitea's.
 
 ```sh
-git tag v1.0.0
-git push origin v1.0.0
+git pull --ff-only
+cog bump --auto --dry-run   # print the next version
+cog bump --auto
 ```
