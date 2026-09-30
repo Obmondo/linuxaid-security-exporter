@@ -1,0 +1,20 @@
+tag_prefix = "v"
+branch_whitelist = ["master"]
+ignore_merge_commits = true
+disable_changelog = true
+# Changes land through gitea PRs, so tag the merged commit instead of adding one.
+disable_bump_commit = true
+
+pre_bump_hooks = [
+  # Tag exactly gitea's master: not behind it, nothing unmerged on top.
+  "git fetch origin master",
+  "git merge-base --is-ancestor origin/master HEAD",
+  "git merge-base --is-ancestor HEAD origin/master",
+]
+
+post_bump_hooks = [
+  # origin is gitea (deb/rpm packages, Harbor image); github is not a mirror
+  # (tarballs, GHCR image), so the tag goes to both.
+  "git push --no-follow-tags origin master {{version_tag}}",
+  "git push --no-follow-tags github master {{version_tag}}",
+]
