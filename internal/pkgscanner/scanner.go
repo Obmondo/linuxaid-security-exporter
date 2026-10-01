@@ -22,9 +22,12 @@ import (
 // ErrUpstream marks failures caused by the Vuls server being unreachable or returning a non 200 status code
 var ErrUpstream = errors.New("vuls upstream unavailable")
 
-// optionalNodeName is the key the node name travels under in the vuls server's
-// free-form Optional map.
-const optionalNodeName = "nodeName"
+// Keys the scan's identity travels under in the vuls server's free-form
+// Optional map.
+const (
+	optionalCertname = "certname"
+	optionalNodeName = "nodeName"
+)
 
 type Scanner struct {
 	client    *http.Client
@@ -57,6 +60,10 @@ func New(cfg config.VulsServer, nodeName string) (*Scanner, error) {
 	if cfg.CertFile != "" {
 		certname = getCommonNameFromCertFile(cfg.CertFile)
 	}
+	// A node reports as <node>@<certname>, so it cannot without a certificate.
+	if nodeName != "" && certname == "" {
+		return nil, fmt.Errorf("node %q needs a client certificate to report under", nodeName)
+	}
 
 	return &Scanner{
 		client: &http.Client{
@@ -67,6 +74,32 @@ func New(cfg config.VulsServer, nodeName string) (*Scanner, error) {
 		certname:  certname,
 		nodeName:  nodeName,
 	}, nil
+}
+
+// serverName names the host on the vuls server, which stores every result as
+// <serverName>.json in one directory. Nodes share their cluster's certificate
+// and node names repeat across clusters, so a node is <node>@<certname>.
+func (s *Scanner) serverName() string {
+	if s.nodeName == "" {
+		return s.certname
+	}
+	return s.nodeName + "@" + s.certname
+}
+
+// optional carries the certname, which the API reads instead of parsing
+// serverName, and the node name when there is one.
+func (s *Scanner) optional() map[string]any {
+	optional := make(map[string]any)
+	if s.certname != "" {
+		optional[optionalCertname] = s.certname
+	}
+	if s.nodeName != "" {
+		optional[optionalNodeName] = s.nodeName
+	}
+	if len(optional) == 0 {
+		return nil
+	}
+	return optional
 }
 
 func buildTLSConfig(cfg config.VulsServer) (*tls.Config, error) {
@@ -141,12 +174,9 @@ func (s *Scanner) Scan(ctx context.Context, c collector.Collector) (*ScanResult,
 	req := ScanRequest{
 		Family:     c.OSFamily(),
 		Release:    c.Release(),
-		ServerName: s.certname,
+		ServerName: s.serverName(),
 		Packages:   packages,
-	}
-
-	if s.nodeName != "" {
-		req.Optional = map[string]any{optionalNodeName: s.nodeName}
+		Optional:   s.optional(),
 	}
 
 	if srcRaw != "" {
