@@ -8,7 +8,7 @@ listen_address: "127.254.254.254:63396"
 scan_interval: 12h
 # keep serving metrics this long after a Vuls connectivity failure, then exit for a systemd restart
 upstream_retry_delay: 6h
-# random_delay: 1h  # max random startup delay (default 1h, set to 0s to disable)
+# random_delay: 1h  # max random startup delay (default 1h; 0s also means the default)
 # scan the system mounted under this root instead of the one the exporter runs
 # on: dpkg-query and rpm are pointed at its database, so a container needs only
 # the node's /etc/os-release and /var/lib/dpkg (or /var/lib/rpm) mounted
