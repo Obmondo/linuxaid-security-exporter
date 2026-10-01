@@ -136,16 +136,6 @@ func runServe(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	randomDelay := cfg.GetRandomDelay()
-	if randomDelay > 0 {
-		delay := time.Duration(rand.Int63n(int64(randomDelay)))
-		slog.Info("applying random startup delay", "delay", delay)
-		time.Sleep(delay)
-	}
-
-	scheduler.Start()
-	slog.Info("scheduler started", "interval", cfg.ScanInterval.Duration, "random_delay", cfg.GetRandomDelay())
-
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.Handle("/scan", newScanHandler(sc, coll, ss))
@@ -155,6 +145,8 @@ func runServe(_ *cobra.Command, _ []string) error {
 		Handler: mux,
 	}
 
+	// Serve through the startup delay too, or Prometheus sees the target down
+	// and a /scan trigger is refused for up to random_delay.
 	go func() {
 		slog.Info("starting HTTP server", "address", cfg.ListenAddress)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -162,6 +154,16 @@ func runServe(_ *cobra.Command, _ []string) error {
 			os.Exit(1)
 		}
 	}()
+
+	randomDelay := cfg.GetRandomDelay()
+	if randomDelay > 0 {
+		delay := time.Duration(rand.Int63n(int64(randomDelay)))
+		slog.Info("applying random startup delay", "delay", delay)
+		time.Sleep(delay)
+	}
+
+	scheduler.Start()
+	slog.Info("scheduler started", "interval", cfg.ScanInterval.Duration, "random_delay", cfg.GetRandomDelay())
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
