@@ -60,6 +60,10 @@ func New(cfg config.VulsServer, nodeName string) (*Scanner, error) {
 	if cfg.CertFile != "" {
 		certname = getCommonNameFromCertFile(cfg.CertFile)
 	}
+	// A node reports as <node>@<certname>, so it cannot without a certificate.
+	if nodeName != "" && certname == "" {
+		return nil, fmt.Errorf("node %q needs a client certificate to report under", nodeName)
+	}
 
 	return &Scanner{
 		client: &http.Client{
@@ -76,14 +80,10 @@ func New(cfg config.VulsServer, nodeName string) (*Scanner, error) {
 // <serverName>.json in one directory. Nodes share their cluster's certificate
 // and node names repeat across clusters, so a node is <node>@<certname>.
 func (s *Scanner) serverName() string {
-	switch {
-	case s.nodeName == "":
+	if s.nodeName == "" {
 		return s.certname
-	case s.certname == "":
-		return s.nodeName
-	default:
-		return s.nodeName + "@" + s.certname
 	}
+	return s.nodeName + "@" + s.certname
 }
 
 // optional carries the certname, which the API reads instead of parsing

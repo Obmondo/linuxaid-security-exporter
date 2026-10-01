@@ -96,9 +96,10 @@ A host is named in Vuls by the common name of its client certificate, its
 certname. Where several hosts share one certificate — the nodes of a Kubernetes
 cluster — `node_name` tells them apart: such a host is named
 `<node_name>@<certname>`, because the Vuls server stores every result as
-`<name>.json` in one directory and node names repeat across clusters. The scan
-request's `Optional` map, which the Vuls server stores with the result, carries
-the certname and the node name, so readers need not parse the name.
+`<name>.json` in one directory and node names repeat across clusters; without a
+certificate, a `node_name` is refused at startup. The scan request's `Optional`
+map, which the Vuls server stores with the result, carries the certname and the
+node name, so readers need not parse the name.
 
 ```yaml
 host_root: /host
