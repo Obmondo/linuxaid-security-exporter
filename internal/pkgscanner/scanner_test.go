@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 	"time"
 
@@ -513,7 +514,7 @@ func TestScan_SendsNodeNameInOptional(t *testing.T) {
 	}
 }
 
-func TestScan_OmitsOptionalWithoutNodeName(t *testing.T) {
+func TestScan_OmitsOptionalWithoutIdentity(t *testing.T) {
 	var payload map[string]any
 	server := nodeScanServer(t, &payload)
 	defer server.Close()
@@ -529,6 +530,69 @@ func TestScan_OmitsOptionalWithoutNodeName(t *testing.T) {
 	}
 
 	if _, present := payload["Optional"]; present {
-		t.Errorf("expected no Optional map without a node name, got %v", payload["Optional"])
+		t.Errorf("expected no Optional map without a certname or node name, got %v", payload["Optional"])
+	}
+}
+
+func TestScan_SendsIdentity(t *testing.T) {
+	var payload map[string]any
+	server := nodeScanServer(t, &payload)
+	defer server.Close()
+
+	sc, err := New(config.VulsServer{URL: server.URL}, "worker-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sc.certname = "demo.example" // as New reads it from the client certificate
+
+	coll := &mockCollector{family: "debian", release: "12", pkgs: "bash\tii\t5.2.15\n"}
+	if _, err := sc.Scan(context.Background(), coll); err != nil {
+		t.Fatal(err)
+	}
+
+	if payload["serverName"] != "worker-1@demo.example" {
+		t.Errorf("expected serverName worker-1@demo.example, got %v", payload["serverName"])
+	}
+	optional, ok := payload["Optional"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected an Optional map in the payload, got %v", payload["Optional"])
+	}
+	if optional[optionalCertname] != "demo.example" {
+		t.Errorf("expected certname demo.example, got %v", optional[optionalCertname])
+	}
+}
+
+func TestScanner_Identity(t *testing.T) {
+	tests := []struct {
+		name           string
+		certname       string
+		nodeName       string
+		wantServerName string
+		wantOptional   map[string]any
+	}{
+		{
+			name: "host", certname: "web01.demo", wantServerName: "web01.demo",
+			wantOptional: map[string]any{optionalCertname: "web01.demo"},
+		},
+		{
+			name: "node", certname: "demo.example", nodeName: "worker-1", wantServerName: "worker-1@demo.example",
+			wantOptional: map[string]any{optionalCertname: "demo.example", optionalNodeName: "worker-1"},
+		},
+		{
+			name: "node without a certificate", nodeName: "worker-1", wantServerName: "worker-1",
+			wantOptional: map[string]any{optionalNodeName: "worker-1"},
+		},
+		{name: "neither"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Scanner{certname: tt.certname, nodeName: tt.nodeName}
+			if got := s.serverName(); got != tt.wantServerName {
+				t.Errorf("expected serverName %q, got %q", tt.wantServerName, got)
+			}
+			if got := s.optional(); !reflect.DeepEqual(got, tt.wantOptional) {
+				t.Errorf("expected Optional %v, got %v", tt.wantOptional, got)
+			}
+		})
 	}
 }
