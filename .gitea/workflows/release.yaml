@@ -25,7 +25,7 @@ jobs:
           cache-dependency-path: go.sum
 
       - name: Run GoReleaser
-        uses: https://gitea.obmondo.com/Obmondo/goreleaser-action@v7.2.3
+        uses: https://gitea.obmondo.com/Obmondo/goreleaser-action@v7.3.0
         with:
           version: "v2.12.7"
           args: release --clean -f .goreleaser-gitea.yaml
