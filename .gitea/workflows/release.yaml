@@ -49,7 +49,6 @@ jobs:
           rsync -azv dist/*.deb dist/*.rpm -e "ssh -o StrictHostKeyChecking=no" ${USERNAME}@${HOST}:${PUBLIC_PATH}
 
   linuxaid-security-exporter-image:
-    runs-on: ubuntu-22.04-htzhel1-ax42-a
     uses: Obmondo/gitea-actions/.gitea/workflows/build-image.yaml@main
     with:
       push: true
